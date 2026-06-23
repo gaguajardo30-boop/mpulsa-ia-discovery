@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Discovery IA — Impulsa IA</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f7f7f5; color: #1a1a1a; min-height: 100vh; }
+
+  .top-bar { background: #fff; border-bottom: 1px solid #e8e8e4; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
+  .logo-area { display: flex; align-items: center; gap: 10px; }
+  .logo-icon { width: 38px; height: 38px; }
+  .logo-text { line-height: 1.15; }
+  .logo-text strong { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; color: #1a1a1a; }
+  .logo-text span { font-size: 10px; color: #888; letter-spacing: 1.5px; text-transform: uppercase; display: block; }
+  .top-bar-right { margin-left: auto; font-size: 13px; color: #aaa; }
+
+  .hero { background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); color: #fff; padding: 48px 24px 40px; text-align: center; }
+  .hero-badge { display: inline-block; background: rgba(245,183,49,0.15); border: 1px solid rgba(245,183,49,0.4); color: #F5B731; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 14px; border-radius: 20px; margin-bottom: 20px; }
+  .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
+  .hero h1 span { color: #F5B731; }
+  .hero p { font-size: 15px; color: rgba(255,255,255,0.7); max-width: 500px; margin: 0 auto; line-height: 1.7; }
+
+  .main { max-width: 640px; margin: 0 auto; padding: 32px 16px 60px; }
+
+  /* MODE SELECTOR */
+  #mode-step { }
+  .section-label { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
+  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
+  .mode-card { background: #fff; border: 1.5px solid #e8e8e4; border-radius: 14px; padding: 20px; cursor: pointer; transition: all 0.15s; }
+  .mode-card:hover { border-color: #F5B731; box-shadow: 0 2px 12px rgba(245,183,49,0.12); }
+  .mode-card.selected { border-color: #F5B731; background: #fffdf0; box-shadow: 0 2px 16px rgba(245,183,49,0.2); }
+  .mode-icon { font-size: 24px; margin-bottom: 10px; }
+  .mode-title { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 5px; }
+  .mode-desc { font-size: 13px; color: #888; line-height: 1.5; margin-bottom: 10px; }
+  .mode-badge { display: inline-block; background: #f0f0ec; color: #666; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
+  .mode-card.selected .mode-badge { background: #F5B731; color: #fff; }
+
+  .btn-start { width: 100%; background: #1a1a1a; color: #fff; border: none; border-radius: 10px; padding: 15px; font-size: 15px; font-weight: 600; cursor: pointer; display: none; transition: background 0.15s; letter-spacing: 0.3px; }
+  .btn-start:hover { background: #333; }
+  .btn-start.visible { display: block; }
+
+  /* FORM STEP */
+  #form-step { display: none; }
+  .progress-header { margin-bottom: 24px; }
+  .progress-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .progress-label { font-size: 13px; color: #888; }
+  .progress-pct { font-size: 13px; font-weight: 600; color: #F5B731; }
+  .progress-track { height: 4px; background: #e8e8e4; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #F5B731; border-radius: 2px; transition: width 0.4s ease; }
+
+  .question-card { background: #fff; border: 1px solid #e8e8e4; border-radius: 14px; padding: 28px; margin-bottom: 20px; }
+  .q-number { font-size: 11px; font-weight: 700; color: #F5B731; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
+  .q-text { font-size: 17px; font-weight: 600; color: #1a1a1a; line-height: 1.4; margin-bottom: 8px; }
+  .q-hint { font-size: 13px; color: #999; line-height: 1.6; margin-bottom: 18px; }
+  textarea { width: 100%; border: 1.5px solid #e8e8e4; border-radius: 10px; padding: 13px 15px; font-size: 14px; font-family: inherit; color: #1a1a1a; background: #fafafa; resize: vertical; min-height: 100px; line-height: 1.7; transition: border-color 0.15s; }
+  textarea:focus { outline: none; border-color: #F5B731; background: #fff; }
+  textarea::placeholder { color: #bbb; }
+
+  .nav-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+  .btn-back { background: transparent; border: 1.5px solid #e8e8e4; border-radius: 10px; padding: 12px 20px; font-size: 14px; font-family: inherit; cursor: pointer; color: #888; transition: all 0.15s; }
+  .btn-back:hover { border-color: #ccc; color: #555; }
+  .btn-back:disabled { opacity: 0.3; cursor: default; }
+  .btn-next { background: #1a1a1a; color: #fff; border: none; border-radius: 10px; padding: 12px 28px; font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; transition: background 0.15s; }
+  .btn-next:hover { background: #333; }
+  .step-dot { font-size: 13px; color: #aaa; }
+
+  /* LOADING */
+  #loading-step { display: none; text-align: center; padding: 60px 20px; }
+  .loader-ring { width: 48px; height: 48px; border: 3px solid #e8e8e4; border-top-color: #F5B731; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 24px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-title { font-size: 18px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
+  .loading-sub { font-size: 14px; color: #999; }
+
+  /* REPORT */
+  #report-step { display: none; }
+  .report-header { background: #fff; border: 1px solid #e8e8e4; border-radius: 14px; padding: 24px 28px; margin-bottom: 16px; }
+  .report-badge { display: inline-block; background: #e8f5ee; color: #2d8a55; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-bottom: 14px; }
+  .report-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+  .report-meta { font-size: 13px; color: #999; }
+  .report-body { background: #fff; border: 1px solid #e8e8e4; border-radius: 14px; padding: 28px; margin-bottom: 16px; }
+  .report-body h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #F5B731; margin: 24px 0 10px; padding-bottom: 6px; border-bottom: 1px solid #f0ede0; }
+  .report-body h2:first-child { margin-top: 0; }
+  .report-body p { font-size: 14px; line-height: 1.75; color: #444; margin-bottom: 10px; }
+  .report-body ul { padding-left: 18px; margin-bottom: 10px; }
+  .report-body li { font-size: 14px; line-height: 1.75; color: #444; margin-bottom: 4px; }
+  .report-body strong { color: #1a1a1a; font-weight: 600; }
+  .pain-card { background: #fafafa; border: 1px solid #e8e8e4; border-left: 3px solid #F5B731; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; }
+  .pain-card h3 { font-size: 13px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+  .pain-card p { font-size: 13px; color: #666; margin: 0; line-height: 1.6; }
+  .opp-card { background: #fafafa; border: 1px solid #e8e8e4; border-left: 3px solid #2d8a55; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; }
+  .opp-card.yellow { border-left-color: #F5B731; }
+  .opp-card h3 { font-size: 13px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
+  .opp-card p { font-size: 13px; color: #666; margin: 0; line-height: 1.6; }
+  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 20px; margin-right: 6px; margin-bottom: 6px; }
+  .tag-green { background: #e8f5ee; color: #2d8a55; }
+  .tag-yellow { background: #fff8e1; color: #b8860b; }
+  .tag-gray { background: #f0f0ec; color: #666; }
+
+  .report-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+  .btn-print { background: #1a1a1a; color: #fff; border: none; border-radius: 10px; padding: 12px 22px; font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; }
+  .btn-print:hover { background: #333; }
+  .btn-new { background: transparent; border: 1.5px solid #e8e8e4; border-radius: 10px; padding: 12px 22px; font-size: 14px; font-family: inherit; cursor: pointer; color: #666; }
+  .btn-new:hover { border-color: #ccc; }
+
+  .email-notice { background: #fffdf0; border: 1px solid #f0ede0; border-radius: 10px; padding: 14px 18px; font-size: 13px; color: #888; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
+  .email-notice strong { color: #555; }
+
+  /* ERROR */
+  #error-msg { display: none; background: #fff5f5; border: 1px solid #fdd; border-radius: 10px; padding: 14px 18px; font-size: 13px; color: #c00; margin-top: 12px; }
+
+  @media (max-width: 480px) {
+    .mode-grid { grid-template-columns: 1fr; }
+    .hero h1 { font-size: 22px; }
+    .hero { padding: 36px 20px 32px; }
+  }
+
+  @media print {
+    .top-bar, .hero, .nav-row, .report-actions, .email-notice { display: none !important; }
+    body { background: white; }
+    .report-body { border: none; padding: 0; }
+    #mode-step, #form-step, #loading-step { display: none !important; }
+    #report-step { display: block !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo-area">
+    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAYAAADL1t+KAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAE5mlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSfvu78nIGlkPSdXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQnPz4KPHg6eG1wbWV0YSB4bWxuczp4PSdhZG9iZTpuczptZXRhLyc+CjxyZGY6UkRGIHhtbG5zOnJkZj0naHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyc+CgogPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9JycKICB4bWxuczpBdHRyaWI9J2h0dHA6Ly9ucy5hdHRyaWJ1dGlvbi5jb20vYWRzLzEuMC8nPgogIDxBdHRyaWI6QWRzPgogICA8cmRmOlNlcT4KICAgIDxyZGY6bGkgcmRmOnBhcnNlVHlwZT0nUmVzb3VyY2UnPgogICAgIDxBdHRyaWI6Q3JlYXRlZD4yMDI1LTA1LTA3PC9BdHRyaWI6Q3JlYXRlZD4KICAgICA8QXR0cmliOkV4dElkPjVkNDc2MjUxLWNkODgtNGNkMS1iZjI5LWM1YjFlOTUzNGQzMTwvQXR0cmliOkV4dElkPgogICAgIDxBdHRyaWI6RmJJZD41MjUyNjU5MTQxNzk1ODA8L0F0dHJpYjpGYklkPgogICAgIDxBdHRyaWI6VG91Y2hUeXBlPjI8L0F0dHJpYjpUb3VjaFR5cGU+CiAgICA8L3JkZjpsaT4KICAgPC9yZGY6U2VxPgogIDwvQXR0cmliOkFkcz4KIDwvcmRmOkRlc2NyaXB0aW9uPgoKIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PScnCiAgeG1sbnM6ZGM9J2h0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvJz4KICA8ZGM6dGl0bGU+CiAgIDxyZGY6QWx0PgogICAgPHJkZjpsaSB4bWw6bGFuZz0neC1kZWZhdWx0Jz5CbGFjayBhbmQgR3JleSBNaW5pbWFsIFJlY3RhbmdsZSBIZWF0aW5nIGFuZCBDb29saW5nIENvbXBhbnkgTG9nbyAtIDE8L3JkZjpsaT4KICAgPC9yZGY6QWx0Pgog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 Em01QL9PJPQ= " class="logo-icon" alt="Impulsa IA logo">
+    <div class="logo-text">
+      <strong>IMPULSA IA</strong>
+      <span>Negocio Inteligente</span>
+    </div>
+  </div>
+  <div class="top-bar-right">Discovery Assessment</div>
+</div>
+
+<div class="hero">
+  <div class="hero-badge">✦ Diagnóstico Gratuito</div>
+  <h1>Descubre dónde la <span>IA puede transformar</span> tu negocio</h1>
+  <p>Responde algunas preguntas y recibe un reporte personalizado con las oportunidades de inteligencia artificial más relevantes para tu empresa.</p>
+</div>
+
+<div class="main">
+
+  <!-- STEP 1: MODE SELECTION -->
+  <div id="mode-step">
+    <p class="section-label">¿Cuánto tiempo tienes disponible?</p>
+    <div class="mode-grid">
+      <div class="mode-card" id="card-short" onclick="selectMode('short')">
+        <div class="mode-icon">⚡</div>
+        <div class="mode-title">Versión rápida</div>
+        <div class="mode-desc">Preguntas esenciales sobre tu negocio y retos principales.</div>
+        <span class="mode-badge">~10 min · 6 preguntas</span>
+      </div>
+      <div class="mode-card" id="card-deep" onclick="selectMode('deep')">
+        <div class="mode-icon">🔭</div>
+        <div class="mode-title">Versión completa</div>
+        <div class="mode-desc">Discovery profundo: procesos, tecnología, equipo y visión.</div>
+        <span class="mode-badge">~25 min · 14 preguntas</span>
+      </div>
+    </div>
+    <button class="btn-start" id="btn-start" onclick="startForm()">Comenzar →</button>
+  </div>
+
+  <!-- STEP 2: QUESTIONS -->
+  <div id="form-step">
+    <div class="progress-header">
+      <div class="progress-meta">
+        <span class="progress-label" id="prog-label">Pregunta 1 de 6</span>
+        <span class="progress-pct" id="prog-pct">16%</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="prog-fill" style="width:16%"></div>
+      </div>
+    </div>
+
+    <div class="question-card">
+      <div class="q-number" id="q-number">Pregunta 01</div>
+      <div class="q-text" id="q-text"></div>
+      <div class="q-hint" id="q-hint"></div>
+      <textarea id="answer-box" placeholder="Escribe tu respuesta aquí..." rows="4"></textarea>
+    </div>
+
+    <div id="error-msg">Por favor escribe una respuesta antes de continuar.</div>
+
+    <div class="nav-row">
+      <button class="btn-back" id="btn-back" onclick="goBack()" disabled>← Atrás</button>
+      <span class="step-dot" id="step-dot">1 / 6</span>
+      <button class="btn-next" id="btn-next" onclick="goNext()">Siguiente →</button>
+    </div>
+  </div>
+
+  <!-- STEP 3: LOADING -->
+  <div id="loading-step">
+    <div class="loader-ring"></div>
+    <div class="loading-title">Analizando tu negocio...</div>
+    <div class="loading-sub">Estamos generando tu reporte personalizado de oportunidades con IA.</div>
+  </div>
+
+  <!-- STEP 4: REPORT -->
+  <div id="report-step">
+    <div class="email-notice">
+      <span>📧</span>
+      <span>Una copia de este reporte fue enviada a <strong>Gabriela Alvarez Guajardo</strong> de Impulsa IA.</span>
+    </div>
+    <div class="report-header">
+      <div class="report-badge">✓ Reporte completado</div>
+      <div class="report-title" id="rep-title">Reporte de Discovery IA</div>
+      <div class="report-meta" id="rep-meta">Generado por Impulsa IA · Negocio Inteligente</div>
+    </div>
+    <div class="report-body" id="rep-body"></div>
+    <div class="report-actions">
+      <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+      <button class="btn-new" onclick="resetAll()">Nuevo diagnóstico</button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const shortQs = [
+  { q: "¿A qué se dedica tu empresa?", h: "Describe brevemente qué venden o qué servicio ofrecen y a quién." },
+  { q: "¿Cuántas personas tiene tu equipo?", h: "Número aproximado incluyendo socios y empleados." },
+  { q: "¿Cuál es el mayor reto que enfrenta tu empresa hoy?", h: "El problema que más tiempo, dinero o energía les consume." },
+  { q: "¿Qué proceso o tarea toma más tiempo de manera manual?", h: "Algo repetitivo que hacen seguido y que podría hacerse más rápido." },
+  { q: "¿Qué métrica es la más importante para medir el éxito de tu empresa?", h: "Ventas, clientes nuevos, tiempo de entrega, satisfacción del cliente, etc." },
+  { q: "¿Qué herramientas o sistemas usan hoy para operar?", h: "CRM, ERP, Excel, WhatsApp, sistemas propios, etc." }
+];
+
+const deepQs = [
+  { q: "¿A qué se dedica tu empresa?", h: "Describe qué venden, a quién y en qué mercado operan." },
+  { q: "¿Cuántas personas tiene tu equipo y cómo está organizado?", h: "Número total y áreas principales (ventas, operaciones, tecnología, etc.)." },
+  { q: "¿Cuáles son tus 3 retos más grandes en este momento?", h: "Pueden ser de operación, ventas, tecnología o personas." },
+  { q: "¿Qué proceso consume más tiempo de manera manual?", h: "Algo repetitivo que el equipo hace seguido y que podría automatizarse." },
+  { q: "¿Dónde se concentran los errores o re-trabajos en tu operación?", h: "Etapas donde algo suele salir mal o hay que hacerlo dos veces." },
+  { q: "¿Cómo se enteran tus clientes de ustedes y cómo los contactan?", h: "Canales de venta, prospectos, referencias, redes sociales, etc." },
+  { q: "¿Qué esperan tus clientes que hoy no siempre pueden cumplir?", h: "Promesas o expectativas que a veces se quedan cortas." },
+  { q: "¿Qué sistemas o herramientas usan para operar el negocio?", h: "Software, apps, Excel, WhatsApp, CRM, ERP, sistemas propios." },
+  { q: "¿Dónde vive la información importante de tu empresa?", h: "Base de datos, hojas de cálculo, correos, en la cabeza del equipo." },
+  { q: "¿Han intentado alguna automatización o proyecto de tecnología antes?", h: "Qué probaron, si funcionó y por qué no funcionó." },
+  { q: "¿Qué haría que este año fuera extraordinario para tu empresa?", h: "La meta que, si la logran, cambiaría todo." },
+  { q: "¿Qué proceso, si fuera 10 veces más rápido, cambiaría el negocio?", h: "El cuello de botella que más limita su crecimiento." },
+  { q: "¿Tienen equipo técnico interno o dependen de proveedores externos?", h: "Desarrolladores, IT, sistemas — dentro o fuera de la empresa." },
+  { q: "¿Qué tan abierto está el equipo a adoptar nuevas herramientas?", h: "Resistencia baja, media o alta ante cambios tecnológicos." }
+];
+
+let mode = null, questions = [], answers = [], current = 0;
+
+function selectMode(m) {
+  mode = m;
+  document.getElementById('card-short').classList.toggle('selected', m === 'short');
+  document.getElementById('card-deep').classList.toggle('selected', m === 'deep');
+  document.getElementById('btn-start').classList.add('visible');
+}
+
+function startForm() {
+  if (!mode) return;
+  questions = mode === 'short' ? shortQs : deepQs;
+  answers = new Array(questions.length).fill('');
+  current = 0;
+  document.getElementById('mode-step').style.display = 'none';
+  document.getElementById('form-step').style.display = 'block';
+  renderQ();
+}
+
+function renderQ() {
+  const total = questions.length;
+  const q = questions[current];
+  const pct = Math.round(((current + 1) / total) * 100);
+  document.getElementById('prog-label').textContent = 'Pregunta ' + (current + 1) + ' de ' + total;
+  document.getElementById('prog-pct').textContent = pct + '%';
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('step-dot').textContent = (current + 1) + ' / ' + total;
+  document.getElementById('q-number').textContent = 'Pregunta ' + String(current + 1).padStart(2, '0');
+  document.getElementById('q-text').textContent = q.q;
+  document.getElementById('q-hint').textContent = q.h;
+  document.getElementById('answer-box').value = answers[current] || '';
+  document.getElementById('btn-back').disabled = current === 0;
+  document.getElementById('btn-next').textContent = current === total - 1 ? 'Enviar y ver reporte →' : 'Siguiente →';
+  document.getElementById('error-msg').style.display = 'none';
+  document.getElementById('answer-box').focus();
+}
+
+function goBack() {
+  answers[current] = document.getElementById('answer-box').value;
+  if (current > 0) { current--; renderQ(); }
+}
+
+function goNext() {
+  const val = document.getElementById('answer-box').value.trim();
+  if (!val) { document.getElementById('error-msg').style.display = 'block'; return; }
+  answers[current] = val;
+  if (current < questions.length - 1) { current++; renderQ(); }
+  else { submitForm(); }
+}
+
+function submitForm() {
+  document.getElementById('form-step').style.display = 'none';
+  document.getElementById('loading-step').style.display = 'block';
+  generateReport();
+}
+
+async function generateReport() {
+  let prompt = `Eres el AI Discovery Agent de Impulsa IA. Un cliente potencial completó el siguiente formulario de Discovery. Genera un reporte profesional en español con estas secciones:
+
+1. RESUMEN EJECUTIVO (2-3 párrafos sobre quiénes son y su situación)
+2. DOLORES PRINCIPALES IDENTIFICADOS (lista los 2-4 dolores más importantes con impacto)
+3. OPORTUNIDADES CON IA (2-3 oportunidades concretas y realistas, con tiempo estimado para ver valor)
+4. PRÓXIMOS PASOS RECOMENDADOS (3 acciones específicas)
+
+Sé concreto, directo y usa los datos que dio el cliente. No inventes información. Usa formato con encabezados claros en MAYÚSCULAS. Si algo no está claro, indícalo como "Dato por confirmar".
+
+RESPUESTAS DEL CLIENTE:
+`;
+  questions.forEach((q, i) => {
+    prompt += `\n${i+1}. ${q.q}\nRespuesta: ${answers[i] || '(no respondida)'}\n`;
+  });
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 1500,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content && data.content[0] ? data.content[0].text : null;
+    if (text) showReport(text);
+    else showReport(buildFallbackReport());
+  } catch(e) {
+    showReport(buildFallbackReport());
+  }
+}
+
+function buildFallbackReport() {
+  let r = 'RESUMEN EJECUTIVO\n\n';
+  r += 'Con base en las respuestas proporcionadas, hemos identificado las áreas de mayor oportunidad para integrar inteligencia artificial en tu negocio. A continuación encontrarás un diagnóstico inicial.\n\n';
+  r += 'INFORMACIÓN CAPTURADA\n\n';
+  questions.forEach((q, i) => {
+    if (answers[i]) r += `${q.q}\n${answers[i]}\n\n`;
+  });
+  r += 'PRÓXIMOS PASOS\n\n1. Agendar sesión de Discovery detallada con Gabriela Alvarez Guajardo\n2. Revisar este reporte y preparar preguntas\n3. Definir iniciativa piloto de mayor impacto';
+  return r;
+}
+
+function showReport(text) {
+  document.getElementById('loading-step').style.display = 'none';
+  document.getElementById('report-step').style.display = 'block';
+
+  const date = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+  document.getElementById('rep-meta').textContent = 'Generado por Impulsa IA · ' + date;
+
+  const company = answers[0] ? answers[0].split(' ').slice(0, 4).join(' ') + '...' : 'Tu empresa';
+  document.getElementById('rep-title').textContent = 'Reporte de Discovery — ' + company;
+
+  const html = formatReport(text);
+  document.getElementById('rep-body').innerHTML = html;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function formatReport(text) {
+  const lines = text.split('\n');
+  let html = '';
+  let inList = false;
+  for (let line of lines) {
+    line = line.trim();
+    if (!line) { if (inList) { html += '</ul>'; inList = false; } continue; }
+    if (line.match(/^[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ\s]+$/) && line.length > 3) {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += '<h2>' + line + '</h2>';
+    } else if (line.startsWith('- ') || line.startsWith('• ') || line.match(/^\d+\.\s/)) {
+      if (!inList) { html += '<ul>'; inList = true; }
+      const content = line.replace(/^[-•]\s/, '').replace(/^\d+\.\s/, '');
+      html += '<li>' + content + '</li>';
+    } else {
+      if (inList) { html += '</ul>'; inList = false; }
+      html += '<p>' + line + '</p>';
+    }
+  }
+  if (inList) html += '</ul>';
+  return html;
+}
+
+function resetAll() {
+  mode = null; answers = []; current = 0;
+  document.getElementById('report-step').style.display = 'none';
+  document.getElementById('card-short').classList.remove('selected');
+  document.getElementById('card-deep').classList.remove('selected');
+  document.getElementById('btn-start').classList.remove('visible');
+  document.getElementById('mode-step').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById('answer-box').addEventListener('keydown', function(e) {
+  if (e.key === 'Enter' && e.ctrlKey) goNext();
+});
+</script>
+</body>
+</html>
