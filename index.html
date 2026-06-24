@@ -964,7 +964,7 @@ Reglas:
         })
       });
 
-      const data = await response.json();
+      const data = await response.json(); console.log('DATA:', JSON.stringify(data).substring(0, 500)); const rawText = ((typeof data.body==='string'?JSON.parse(data.body):data).content||[]).map(b => b.text || '').join(''); console.log('RAWTEXT:', rawText.substring(0, 200));
       const rawText = ((typeof data.body==='string'?JSON.parse(data.body):data).content||[]).map(b => b.text || '').join('');
       const clean = rawText.replace(/```json|```/g, '').trim();
       const report = JSON.parse(clean);
@@ -972,7 +972,7 @@ Reglas:
       renderReport(report, name, company);
 
     } catch (err) {
-      console.error('Error al llamar a Claude:', err);
+      console.error('ERROR REAL:', err.message); a Claude:', err);
       renderFallback(name, company);
     }
   }
