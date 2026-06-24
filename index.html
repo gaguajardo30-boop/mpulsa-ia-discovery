@@ -965,7 +965,7 @@ Reglas:
       });
 
       const data = await response.json();
-      const rawText = (data.content || []).map(b => b.text || '').join('');
+      const rawText = ((typeof data.body==='string'?JSON.parse(data.body):data).content||[]).map(b => b.text || '').join('');
       const clean = rawText.replace(/```json|```/g, '').trim();
       const report = JSON.parse(clean);
 
