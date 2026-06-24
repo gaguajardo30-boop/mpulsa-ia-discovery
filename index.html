@@ -1,406 +1,1141 @@
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Discovery IA — Impulsa IA</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f7f7f5; color: #1a1a1a; min-height: 100vh; }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Diagnóstico Estratégico de IA — Impulsa IA</title>
 
-  .top-bar { background: #fff; border-bottom: 1px solid #e8e8e4; padding: 14px 24px; display: flex; align-items: center; gap: 12px; }
-  .logo-area { display: flex; align-items: center; gap: 10px; }
-  .logo-icon { width: 38px; height: 38px; }
-  .logo-text { line-height: 1.15; }
-  .logo-text strong { font-size: 16px; font-weight: 700; letter-spacing: 0.5px; color: #1a1a1a; }
-  .logo-text span { font-size: 10px; color: #888; letter-spacing: 1.5px; text-transform: uppercase; display: block; }
-  .top-bar-right { margin-left: auto; font-size: 13px; color: #aaa; }
+  <!-- ============================================================
+       FUENTES E ICONOS
+       ============================================================ -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
 
-  .hero { background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%); color: #fff; padding: 48px 24px 40px; text-align: center; }
-  .hero-badge { display: inline-block; background: rgba(245,183,49,0.15); border: 1px solid rgba(245,183,49,0.4); color: #F5B731; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; padding: 5px 14px; border-radius: 20px; margin-bottom: 20px; }
-  .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 12px; line-height: 1.3; }
-  .hero h1 span { color: #F5B731; }
-  .hero p { font-size: 15px; color: rgba(255,255,255,0.7); max-width: 500px; margin: 0 auto; line-height: 1.7; }
+  <!-- ============================================================
+       CSS GLOBAL — TOKENS, RESET, LAYOUT
+       ============================================================ -->
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  .main { max-width: 640px; margin: 0 auto; padding: 32px 16px 60px; }
+    :root {
+      --gold:        #F5B731;
+      --gold-dark:   #C9920A;
+      --gold-light:  #FDF3D0;
+      --ink:         #0D0D0D;
+      --ink-mid:     #3A3A3A;
+      --ink-muted:   #6B6B6B;
+      --surface:     #FFFFFF;
+      --surface-alt: #F9F8F6;
+      --border:      rgba(0, 0, 0, 0.10);
+      --radius:      12px;
+    }
 
-  /* MODE SELECTOR */
-  #mode-step { }
-  .section-label { font-size: 13px; font-weight: 600; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 14px; }
-  .mode-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 24px; }
-  .mode-card { background: #fff; border: 1.5px solid #e8e8e4; border-radius: 14px; padding: 20px; cursor: pointer; transition: all 0.15s; }
-  .mode-card:hover { border-color: #F5B731; box-shadow: 0 2px 12px rgba(245,183,49,0.12); }
-  .mode-card.selected { border-color: #F5B731; background: #fffdf0; box-shadow: 0 2px 16px rgba(245,183,49,0.2); }
-  .mode-icon { font-size: 24px; margin-bottom: 10px; }
-  .mode-title { font-size: 15px; font-weight: 600; color: #1a1a1a; margin-bottom: 5px; }
-  .mode-desc { font-size: 13px; color: #888; line-height: 1.5; margin-bottom: 10px; }
-  .mode-badge { display: inline-block; background: #f0f0ec; color: #666; font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 20px; }
-  .mode-card.selected .mode-badge { background: #F5B731; color: #fff; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #F0EFED;
+      color: var(--ink);
+      min-height: 100vh;
+      padding: 2rem 1rem;
+    }
 
-  .btn-start { width: 100%; background: #1a1a1a; color: #fff; border: none; border-radius: 10px; padding: 15px; font-size: 15px; font-weight: 600; cursor: pointer; display: none; transition: background 0.15s; letter-spacing: 0.3px; }
-  .btn-start:hover { background: #333; }
-  .btn-start.visible { display: block; }
+    #app {
+      max-width: 700px;
+      margin: 0 auto;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    }
 
-  /* FORM STEP */
-  #form-step { display: none; }
-  .progress-header { margin-bottom: 24px; }
-  .progress-meta { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
-  .progress-label { font-size: 13px; color: #888; }
-  .progress-pct { font-size: 13px; font-weight: 600; color: #F5B731; }
-  .progress-track { height: 4px; background: #e8e8e4; border-radius: 2px; overflow: hidden; }
-  .progress-fill { height: 100%; background: #F5B731; border-radius: 2px; transition: width 0.4s ease; }
+    /* ============================================================
+       HEADER — BARRA SUPERIOR CON LOGO
+       ============================================================ */
+    .header {
+      background: var(--ink);
+      padding: 1.5rem 2.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+    .logo-text {
+      font-size: 20px;
+      font-weight: 600;
+      color: #FFF;
+      letter-spacing: -0.3px;
+    }
+    .logo-text span { color: var(--gold); }
+    .header-badge {
+      font-size: 11px;
+      background: var(--gold);
+      color: var(--ink);
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
 
-  .question-card { background: #fff; border: 1px solid #e8e8e4; border-radius: 14px; padding: 28px; margin-bottom: 20px; }
-  .q-number { font-size: 11px; font-weight: 700; color: #F5B731; text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 10px; }
-  .q-text { font-size: 17px; font-weight: 600; color: #1a1a1a; line-height: 1.4; margin-bottom: 8px; }
-  .q-hint { font-size: 13px; color: #999; line-height: 1.6; margin-bottom: 18px; }
-  textarea { width: 100%; border: 1.5px solid #e8e8e4; border-radius: 10px; padding: 13px 15px; font-size: 14px; font-family: inherit; color: #1a1a1a; background: #fafafa; resize: vertical; min-height: 100px; line-height: 1.7; transition: border-color 0.15s; }
-  textarea:focus { outline: none; border-color: #F5B731; background: #fff; }
-  textarea::placeholder { color: #bbb; }
+    /* ============================================================
+       HERO — INTRODUCCIÓN DEL CUESTIONARIO
+       ============================================================ */
+    .hero {
+      background: var(--surface-alt);
+      padding: 2rem 2.5rem;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+    }
+    .hero h1 {
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.2;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.4px;
+    }
+    .hero h1 span { color: var(--gold-dark); }
+    .hero p {
+      font-size: 14px;
+      color: var(--ink-muted);
+      line-height: 1.6;
+    }
+    .hero-meta {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    .hero-meta span {
+      font-size: 12px;
+      color: var(--ink-muted);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .hero-meta i { font-size: 13px; color: var(--gold-dark); }
 
-  .nav-row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
-  .btn-back { background: transparent; border: 1.5px solid #e8e8e4; border-radius: 10px; padding: 12px 20px; font-size: 14px; font-family: inherit; cursor: pointer; color: #888; transition: all 0.15s; }
-  .btn-back:hover { border-color: #ccc; color: #555; }
-  .btn-back:disabled { opacity: 0.3; cursor: default; }
-  .btn-next { background: #1a1a1a; color: #fff; border: none; border-radius: 10px; padding: 12px 28px; font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; transition: background 0.15s; }
-  .btn-next:hover { background: #333; }
-  .step-dot { font-size: 13px; color: #aaa; }
+    /* ============================================================
+       BARRA DE PROGRESO
+       ============================================================ */
+    .progress-bar-wrap {
+      background: var(--surface);
+      padding: 1rem 2.5rem;
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: var(--ink-muted);
+      margin-bottom: 6px;
+    }
+    .progress-track {
+      height: 3px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--gold);
+      border-radius: 4px;
+      transition: width 0.4s ease;
+    }
 
-  /* LOADING */
-  #loading-step { display: none; text-align: center; padding: 60px 20px; }
-  .loader-ring { width: 48px; height: 48px; border: 3px solid #e8e8e4; border-top-color: #F5B731; border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 24px; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .loading-title { font-size: 18px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
-  .loading-sub { font-size: 14px; color: #999; }
+    /* ============================================================
+       CUERPO DEL FORMULARIO — CONTENEDOR DE PREGUNTAS
+       ============================================================ -->
+    .form-body {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: none;
+      padding: 0 2.5rem;
+    }
 
-  /* REPORT */
-  #report-step { display: none; }
-  .report-header { background: #fff; border: 1px solid #e8e8e4; border-radius: 14px; padding: 24px 28px; margin-bottom: 16px; }
-  .report-badge { display: inline-block; background: #e8f5ee; color: #2d8a55; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 4px 12px; border-radius: 20px; margin-bottom: 14px; }
-  .report-title { font-size: 20px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
-  .report-meta { font-size: 13px; color: #999; }
-  .report-body { background: #fff; border: 1px solid #e8e8e4; border-radius: 14px; padding: 28px; margin-bottom: 16px; }
-  .report-body h2 { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.2px; color: #F5B731; margin: 24px 0 10px; padding-bottom: 6px; border-bottom: 1px solid #f0ede0; }
-  .report-body h2:first-child { margin-top: 0; }
-  .report-body p { font-size: 14px; line-height: 1.75; color: #444; margin-bottom: 10px; }
-  .report-body ul { padding-left: 18px; margin-bottom: 10px; }
-  .report-body li { font-size: 14px; line-height: 1.75; color: #444; margin-bottom: 4px; }
-  .report-body strong { color: #1a1a1a; font-weight: 600; }
-  .pain-card { background: #fafafa; border: 1px solid #e8e8e4; border-left: 3px solid #F5B731; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; }
-  .pain-card h3 { font-size: 13px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
-  .pain-card p { font-size: 13px; color: #666; margin: 0; line-height: 1.6; }
-  .opp-card { background: #fafafa; border: 1px solid #e8e8e4; border-left: 3px solid #2d8a55; border-radius: 8px; padding: 14px 16px; margin-bottom: 12px; }
-  .opp-card.yellow { border-left-color: #F5B731; }
-  .opp-card h3 { font-size: 13px; font-weight: 700; color: #1a1a1a; margin-bottom: 6px; }
-  .opp-card p { font-size: 13px; color: #666; margin: 0; line-height: 1.6; }
-  .tag { display: inline-block; font-size: 11px; font-weight: 600; padding: 2px 9px; border-radius: 20px; margin-right: 6px; margin-bottom: 6px; }
-  .tag-green { background: #e8f5ee; color: #2d8a55; }
-  .tag-yellow { background: #fff8e1; color: #b8860b; }
-  .tag-gray { background: #f0f0ec; color: #666; }
+    /* ============================================================
+       BLOQUE DE PREGUNTA INDIVIDUAL
+       ============================================================ */
+    .q-block {
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--border);
+      display: none;
+    }
+    .q-block.active { display: block; }
 
-  .report-actions { display: flex; gap: 10px; flex-wrap: wrap; }
-  .btn-print { background: #1a1a1a; color: #fff; border: none; border-radius: 10px; padding: 12px 22px; font-size: 14px; font-weight: 600; font-family: inherit; cursor: pointer; }
-  .btn-print:hover { background: #333; }
-  .btn-new { background: transparent; border: 1.5px solid #e8e8e4; border-radius: 10px; padding: 12px 22px; font-size: 14px; font-family: inherit; cursor: pointer; color: #666; }
-  .btn-new:hover { border-color: #ccc; }
+    .q-number {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--gold-dark);
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .q-text {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--ink);
+      line-height: 1.4;
+      margin-bottom: 4px;
+    }
+    .q-hint {
+      font-size: 13px;
+      color: var(--ink-muted);
+      line-height: 1.5;
+      margin-bottom: 1rem;
+    }
+    .q-block textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem 1rem;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      color: var(--ink);
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      resize: vertical;
+      outline: none;
+      transition: border-color 0.2s;
+      line-height: 1.6;
+    }
+    .q-block textarea:focus { border-color: var(--gold); }
+    .q-block textarea::placeholder { color: var(--ink-muted); }
 
-  .email-notice { background: #fffdf0; border: 1px solid #f0ede0; border-radius: 10px; padding: 14px 18px; font-size: 13px; color: #888; margin-bottom: 20px; display: flex; align-items: center; gap: 10px; }
-  .email-notice strong { color: #555; }
+    /* ============================================================
+       NAVEGACIÓN — BOTONES ANTERIOR / SIGUIENTE
+       ============================================================ */
+    .nav-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 0 0.75rem;
+      gap: 1rem;
+    }
+    .btn-back {
+      font-size: 13px;
+      color: var(--ink-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0;
+    }
+    .btn-back:hover { color: var(--ink); }
+    .btn-next {
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      background: var(--gold);
+      border: none;
+      padding: 0.65rem 1.75rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-next:hover { background: var(--gold-dark); color: #fff; }
+    .btn-next:active { transform: scale(0.98); }
 
-  /* ERROR */
-  #error-msg { display: none; background: #fff5f5; border: 1px solid #fdd; border-radius: 10px; padding: 14px 18px; font-size: 13px; color: #c00; margin-top: 12px; }
+    /* ============================================================
+       CAPTURA DE DATOS DEL CLIENTE — ÚLTIMO PASO
+       ============================================================ */
+    .email-section {
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--border);
+      display: none;
+    }
+    .email-section.active { display: block; }
+    .email-section label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-mid);
+      display: block;
+      margin-bottom: 6px;
+    }
+    .email-section input {
+      width: 100%;
+      padding: 0.65rem 1rem;
+      font-size: 14px;
+      font-family: 'Inter', sans-serif;
+      color: var(--ink);
+      background: var(--surface-alt);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      outline: none;
+      transition: border-color 0.2s;
+      margin-bottom: 0.75rem;
+    }
+    .email-section input:focus { border-color: var(--gold); }
+    .error-msg {
+      font-size: 12px;
+      color: #C0392B;
+      margin-top: 6px;
+      display: none;
+    }
 
-  @media (max-width: 480px) {
-    .mode-grid { grid-template-columns: 1fr; }
-    .hero h1 { font-size: 22px; }
-    .hero { padding: 36px 20px 32px; }
-  }
+    /* ============================================================
+       PANTALLA DE CARGA — MIENTRAS LA IA GENERA EL DIAGNÓSTICO
+       ============================================================ */
+    .loading-screen {
+      display: none;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-top: none;
+      padding: 3.5rem 2.5rem;
+      text-align: center;
+    }
+    .loading-screen.active { display: block; }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--gold-light);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.9s linear infinite;
+      margin: 0 auto 1.5rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-screen h2 {
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+    .loading-screen p {
+      font-size: 13px;
+      color: var(--ink-muted);
+      line-height: 1.6;
+    }
+    .loading-steps {
+      margin-top: 1.5rem;
+      text-align: left;
+      display: inline-block;
+    }
+    .loading-step {
+      font-size: 13px;
+      color: var(--ink-muted);
+      padding: 5px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      opacity: 0.3;
+      transition: opacity 0.4s;
+    }
+    .loading-step.done { opacity: 1; }
+    .loading-step i { font-size: 14px; color: var(--gold-dark); }
 
-  @media print {
-    .top-bar, .hero, .nav-row, .report-actions, .email-notice { display: none !important; }
-    body { background: white; }
-    .report-body { border: none; padding: 0; }
-    #mode-step, #form-step, #loading-step { display: none !important; }
-    #report-step { display: block !important; }
-  }
-</style>
+    /* ============================================================
+       REPORTE EJECUTIVO — RENDER DEL DIAGNÓSTICO
+       ============================================================ */
+    .report-wrap { display: none; }
+    .report-wrap.active { display: block; }
+
+    .report-header {
+      background: var(--ink);
+      padding: 2rem 2.5rem;
+    }
+    .report-eyebrow {
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: var(--gold);
+      font-weight: 500;
+      margin-bottom: 0.4rem;
+    }
+    .report-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #fff;
+      line-height: 1.2;
+      letter-spacing: -0.3px;
+    }
+    .report-meta {
+      font-size: 12px;
+      color: rgba(255,255,255,0.4);
+      margin-top: 0.5rem;
+    }
+
+    .report-body {
+      background: var(--surface);
+      padding: 0 2.5rem;
+      border: 1px solid var(--border);
+      border-top: none;
+    }
+    .report-section {
+      padding: 1.5rem 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .report-section:last-child { border-bottom: none; }
+    .section-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+      color: var(--gold-dark);
+      margin-bottom: 0.75rem;
+      text-transform: uppercase;
+    }
+
+    /* Resumen ejecutivo */
+    .exec-summary-box {
+      background: var(--surface-alt);
+      border-left: 3px solid var(--gold);
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 14px;
+      line-height: 1.7;
+      color: var(--ink-mid);
+    }
+
+    /* Nivel de madurez */
+    .maturity-badge {
+      font-size: 13px;
+      font-weight: 500;
+      padding: 6px 16px;
+      border-radius: 20px;
+      display: inline-block;
+      margin-bottom: 0.75rem;
+    }
+    .maturity-inicial    { background: #FEE2E2; color: #991B1B; }
+    .maturity-intermedio { background: #FEF3C7; color: #92400E; }
+    .maturity-avanzado   { background: #D1FAE5; color: #065F46; }
+
+    /* Tarjetas de oportunidades */
+    .opp-cards { display: flex; flex-direction: column; gap: 0.75rem; }
+    .opp-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 0.75rem 1rem;
+      align-items: start;
+    }
+    .opp-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--gold-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 2px;
+    }
+    .opp-icon i { font-size: 18px; color: var(--gold-dark); }
+    .opp-title { font-size: 14px; font-weight: 500; color: var(--ink); margin-bottom: 4px; }
+    .opp-desc  { font-size: 13px; color: var(--ink-muted); line-height: 1.5; margin-bottom: 3px; }
+    .opp-tags  { grid-column: 2; display: flex; gap: 6px; flex-wrap: wrap; margin-top: 4px; }
+    .tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      background: var(--surface-alt);
+      color: var(--ink-muted);
+      border: 1px solid var(--border);
+    }
+    .tag-impact { background: var(--gold-light); color: var(--gold-dark); border-color: var(--gold); }
+
+    /* Proyecto piloto */
+    .pilot-box {
+      background: var(--ink);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+    }
+    .pilot-title { font-size: 15px; font-weight: 500; color: var(--gold); margin-bottom: 0.5rem; }
+    .pilot-desc  { font-size: 13px; color: rgba(255,255,255,0.75); line-height: 1.6; }
+
+    /* Plan de acción */
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.75rem;
+    }
+    .timeline-col {
+      background: var(--surface-alt);
+      border-radius: 8px;
+      padding: 1rem;
+    }
+    .t-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.8px;
+      color: var(--gold-dark);
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+    .timeline-col ul { list-style: none; padding: 0; }
+    .timeline-col ul li {
+      font-size: 12px;
+      color: var(--ink-mid);
+      line-height: 1.5;
+      padding: 4px 0;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: flex-start;
+      gap: 5px;
+    }
+    .timeline-col ul li:last-child { border-bottom: none; }
+    .timeline-col ul li::before { content: '·'; color: var(--gold); font-weight: 700; flex-shrink: 0; }
+
+    /* CTA final */
+    .cta-box {
+      background: var(--gold-light);
+      border: 1px solid var(--gold);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .cta-box p { font-size: 13px; color: var(--ink-mid); line-height: 1.6; margin-bottom: 1rem; }
+    .btn-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--ink);
+      background: var(--gold);
+      border: none;
+      padding: 0.75rem 2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.2s;
+      text-decoration: none;
+    }
+    .btn-cta:hover { background: var(--gold-dark); color: #fff; }
+
+    /* Footer del reporte */
+    .report-footer {
+      background: var(--ink);
+      padding: 1rem 2.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .report-footer span { font-size: 11px; color: rgba(255,255,255,0.35); }
+    .btn-restart {
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      background: none;
+      border: 1px solid rgba(255,255,255,0.15);
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .btn-restart:hover { color: #fff; border-color: rgba(255,255,255,0.4); }
+
+    @media (max-width: 600px) {
+      .header, .hero, .progress-bar-wrap, .form-body, .report-body { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .report-header, .report-footer { padding-left: 1.25rem; padding-right: 1.25rem; }
+      .timeline { grid-template-columns: 1fr; }
+      .hero h1 { font-size: 20px; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="top-bar">
-  <div class="logo-area">
-    <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfQAAAH0CAYAAADL1t+KAAAACXBIWXMAAA7EAAAOxAGVKw4bAAAE5mlUWHRYTUw6Y29tLmFkb2JlLnhtcAAAAAAAPD94cGFja2V0IGJlZ2luPSfvu78nIGlkPSdXNU0wTXBDZWhpSHpyZVN6TlRjemtjOWQnPz4KPHg6eG1wbWV0YSB4bWxuczp4PSdhZG9iZTpuczptZXRhLyc+CjxyZGY6UkRGIHhtbG5zOnJkZj0naHR0cDovL3d3dy53My5vcmcvMTk5OS8wMi8yMi1yZGYtc3ludGF4LW5zIyc+CgogPHJkZjpEZXNjcmlwdGlvbiByZGY6YWJvdXQ9JycKICB4bWxuczpBdHRyaWI9J2h0dHA6Ly9ucy5hdHRyaWJ1dGlvbi5jb20vYWRzLzEuMC8nPgogIDxBdHRyaWI6QWRzPgogICA8cmRmOlNlcT4KICAgIDxyZGY6bGkgcmRmOnBhcnNlVHlwZT0nUmVzb3VyY2UnPgogICAgIDxBdHRyaWI6Q3JlYXRlZD4yMDI1LTA1LTA3PC9BdHRyaWI6Q3JlYXRlZD4KICAgICA8QXR0cmliOkV4dElkPjVkNDc2MjUxLWNkODgtNGNkMS1iZjI5LWM1YjFlOTUzNGQzMTwvQXR0cmliOkV4dElkPgogICAgIDxBdHRyaWI6RmJJZD41MjUyNjU5MTQxNzk1ODA8L0F0dHJpYjpGYklkPgogICAgIDxBdHRyaWI6VG91Y2hUeXBlPjI8L0F0dHJpYjpUb3VjaFR5cGU+CiAgICA8L3JkZjpsaT4KICAgPC9yZGY6U2VxPgogIDwvQXR0cmliOkFkcz4KIDwvcmRmOkRlc2NyaXB0aW9uPgoKIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PScnCiAgeG1sbnM6ZGM9J2h0dHA6Ly9wdXJsLm9yZy9kYy9lbGVtZW50cy8xLjEvJz4KICA8ZGM6dGl0bGU+CiAgIDxyZGY6QWx0PgogICAgPHJkZjpsaSB4bWw6bGFuZz0neC1kZWZhdWx0Jz5CbGFjayBhbmQgR3JleSBNaW5pbWFsIFJlY3RhbmdsZSBIZWF0aW5nIGFuZCBDb29saW5nIENvbXBhbnkgTG9nbyAtIDE8L3JkZjpsaT4KICAgPC9yZGY6QWx0PgogIDwvZGM6dGl0bGU+CiA8L3JkZjpEZXNjcmlwdGlvbj4KCiA8cmRmOkRlc2NyaXB0aW9uIHJkZjphYm91dD0nJwogIHhtbG5zOnBkZj0naHR0cDovL25zLmFkb2JlLmNvbS9wZGYvMS4zLyc+CiAgPHBkZjpBdXRob3I+R2FicmllbGEgQWx2YXJlejwvcGRmOkF1dGhvcj4KIDwvcmRmOkRlc2NyaXB0aW9uPgoKIDxyZGY6RGVzY3JpcHRpb24gcmRmOmFib3V0PScnCiAgeG1sbnM6eG1wPSdodHRwOi8vbnMuYWRvYmUuY29tL3hhcC8xLjAvJz4KICA8eG1wOkNyZWF0b3JUb29sPkNhbnZhIGRvYz1EQUdsa01pQUhVWSB1c2VyPVVBRmZGNk5KWDdrIGJyYW5kPUJBRmZGMXBieXdnIHRlbXBsYXRlPTwveG1wOkNyZWF0b3JUb29sPgogPC9yZGY6RGVzY3JpcHRpb24+CjwvcmRmOlJERj4KPC94OnhtcG1ldGE+Cjw/eHBhY2tldCBlbmQ9J3InPz4BcYH/AAAgAElEQVR4nO3dCZgsVXkw4DJx35csrhE1xiVqTPyToNFAErdEQRa757IoJCoqxn1fo7+iIm4oieLGg0tc0ag/IjFGTISZuVxBcMmiAlGjiUZFETWb/dc3XQ1NT1Wdqu7q7pnxfZ/ne y7MVJ1zqrqnvqpTp05lGQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAsBUM9hx1lcGFR1598PnetQd7etcbfGr/6wzO6l0j//+rLrttAECJPFHfcLDeO3Cw1j8+jz2DtZVBOvpfH6z2T8vj2MHqymGDPQfdZNnbAQA/dfKr7l/Kk/JT8lhtlsAbxGr/Q/m/D1r2tgHAjjdYX3lgnnTP7iyJl8e/5Vftz45u+mVv7xxdLY/r18Q1GpZzvUQ549GVK7eo81oNy7xWizIj4rtxpU625nJdfSZlUvvs2g3LSe2nq8zQxmlcPY975HF0Hs/L45V5/EUeL83jmXk8NI87Z8Ptn4db5bF3g7jRnOpvalGfW2xnk/1xq47qYzvKE+wd8ivoc+acyCeu2Fe+k//7vLgHv+ztn4On5DGoiTc1LOcHiXLG4/901PYntKjzbxqW+f9alDmKn+TxvTz+JY/T8jgmj/3zmHacxjMS9Z0wZbnh3omy1xqWk9pPh8/QxqZ+No8D8jg9j/9KtGcUP87jY3k8No9bdtiW8xrW/+oO65zGoj634xP1jOIzHdXHdjNY679qiu7zS/J/v5L/e37+79/lZZyb/3th/u93p7ti7//OsvdDx5aR0F/YUds/1aLOeSb0qviPbHgAv2nL7ZLQ0+6Wx2cTbUhFnIh9Io/DsuEV/rTu2KLOb2TDE5FlWcTnFtv3jUQ943HHDupkuxic1btzfpX8hYZX0/ly/RPyxLtfjGxPlr128F0G6/0j8uVfUyT7Jon9CYvY7gVZRkI/v4N2x+DF/21R5zIS+iguzuPhLbZNQq8X+/K/E/W3jYfN0J5jWtZ1nxnqmtUiPrf7JOqYjGM6qJPtIE/Qj24wUv2r+XIvyhP/L89eX/938jLf0yCpv7OL7dsClpHQI249Y7v/tGV9y0zoo3hJwzZI6NUOydqdyDWJOOFqOsaizAUt6ztphrpmtYjP7aREHZNxQQd1stUNR6/XJvIL8qvr+82l7t27bpHXcXKi/r/dAQPmlpXQnzhju89oWd9WSOhNt1tCLxe3Ltp+z5rEa2Zo090nqC/GW8zSxT+LeX9uMaDz4kQdZXGPGetlK0sn85WmVzsztqN3t7yutZp79OcPzjzwFxbRljlZVkI/Y4Y2x/7+n5b1bZWEfmkeN0u0QUIvd1KizmnjDjO06bU15f5nze8ePEOds5j353ZwTdl1+2OW7zRbWZ4oj65J5F8erK78xhLa9IKa+/afXnR7OrSshB4JedpHeB7Zsq4uE/qpebx8LOLq7u15nJsNB1k1acsb Em01QL9PJPQ= " class="logo-icon" alt="Impulsa IA logo">
-    <div class="logo-text">
-      <strong>IMPULSA IA</strong>
-      <span>Negocio Inteligente</span>
-    </div>
-  </div>
-  <div class="top-bar-right">Discovery Assessment</div>
-</div>
+<div id="app">
 
-<div class="hero">
-  <div class="hero-badge">✦ Diagnóstico Gratuito</div>
-  <h1>Descubre dónde la <span>IA puede transformar</span> tu negocio</h1>
-  <p>Responde algunas preguntas y recibe un reporte personalizado con las oportunidades de inteligencia artificial más relevantes para tu empresa.</p>
-</div>
-
-<div class="main">
-
-  <!-- STEP 1: MODE SELECTION -->
-  <div id="mode-step">
-    <p class="section-label">¿Cuánto tiempo tienes disponible?</p>
-    <div class="mode-grid">
-      <div class="mode-card" id="card-short" onclick="selectMode('short')">
-        <div class="mode-icon">⚡</div>
-        <div class="mode-title">Versión rápida</div>
-        <div class="mode-desc">Preguntas esenciales sobre tu negocio y retos principales.</div>
-        <span class="mode-badge">~10 min · 6 preguntas</span>
-      </div>
-      <div class="mode-card" id="card-deep" onclick="selectMode('deep')">
-        <div class="mode-icon">🔭</div>
-        <div class="mode-title">Versión completa</div>
-        <div class="mode-desc">Discovery profundo: procesos, tecnología, equipo y visión.</div>
-        <span class="mode-badge">~25 min · 14 preguntas</span>
-      </div>
-    </div>
-    <button class="btn-start" id="btn-start" onclick="startForm()">Comenzar →</button>
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo-text">Impulsa <span>IA</span></div>
+    <div class="header-badge">Diagnóstico Estratégico</div>
   </div>
 
-  <!-- STEP 2: QUESTIONS -->
-  <div id="form-step">
-    <div class="progress-header">
-      <div class="progress-meta">
-        <span class="progress-label" id="prog-label">Pregunta 1 de 6</span>
-        <span class="progress-pct" id="prog-pct">16%</span>
+  <!-- ============================================================
+       SECCIÓN 1: CUESTIONARIO — 16 PREGUNTAS + CAPTURA DE DATOS
+       ============================================================ -->
+  <div id="questionnaire">
+
+    <!-- Hero intro -->
+    <div class="hero">
+      <h1>Descubre el potencial de <span>IA</span> en tu empresa</h1>
+      <p>Responde 16 preguntas y recibirás un diagnóstico ejecutivo personalizado, sin costo.</p>
+      <div class="hero-meta">
+        <span><i class="ti ti-clock"></i> 5–8 minutos</span>
+        <span><i class="ti ti-file-analytics"></i> Reporte inmediato</span>
+        <span><i class="ti ti-lock"></i> 100% confidencial</span>
+      </div>
+    </div>
+
+    <!-- Barra de progreso -->
+    <div class="progress-bar-wrap">
+      <div class="progress-label">
+        <span id="progress-text">Pregunta 1 de 16</span>
+        <span id="progress-pct">0%</span>
       </div>
       <div class="progress-track">
-        <div class="progress-fill" id="prog-fill" style="width:16%"></div>
+        <div class="progress-fill" id="progress-fill" style="width:0%"></div>
       </div>
     </div>
 
-    <div class="question-card">
-      <div class="q-number" id="q-number">Pregunta 01</div>
-      <div class="q-text" id="q-text"></div>
-      <div class="q-hint" id="q-hint"></div>
-      <textarea id="answer-box" placeholder="Escribe tu respuesta aquí..." rows="4"></textarea>
-    </div>
+    <!-- Preguntas -->
+    <div class="form-body">
 
-    <div id="error-msg">Por favor escribe una respuesta antes de continuar.</div>
+      <!-- Pregunta 1 -->
+      <div class="q-block active" id="q1">
+        <div class="q-number">PREGUNTA 01 / 16</div>
+        <div class="q-text">¿A qué se dedica tu empresa?</div>
+        <div class="q-hint">Describe qué venden, a quién y en qué mercado operan.</div>
+        <textarea id="a1" placeholder="Ej: Somos una empresa de servicios de logística para retailers en México..."></textarea>
+      </div>
 
-    <div class="nav-row">
-      <button class="btn-back" id="btn-back" onclick="goBack()" disabled>← Atrás</button>
-      <span class="step-dot" id="step-dot">1 / 6</span>
-      <button class="btn-next" id="btn-next" onclick="goNext()">Siguiente →</button>
+      <!-- Pregunta 2 -->
+      <div class="q-block" id="q2">
+        <div class="q-number">PREGUNTA 02 / 16</div>
+        <div class="q-text">¿Cuántas personas tiene tu equipo?</div>
+        <div class="q-hint">Incluyendo socios y empleados.</div>
+        <textarea id="a2" placeholder="Ej: Somos 23 personas en total — 3 socios, 8 operativos, 5 ventas..."></textarea>
+      </div>
+
+      <!-- Pregunta 3 -->
+      <div class="q-block" id="q3">
+        <div class="q-number">PREGUNTA 03 / 16</div>
+        <div class="q-text">¿Cuál es el mayor reto que enfrenta tu empresa hoy?</div>
+        <div class="q-hint">El problema principal que limita sus resultados.</div>
+        <textarea id="a3" placeholder="Ej: No podemos escalar porque todo depende de mí..."></textarea>
+      </div>
+
+      <!-- Pregunta 4 -->
+      <div class="q-block" id="q4">
+        <div class="q-number">PREGUNTA 04 / 16</div>
+        <div class="q-text">¿Qué proceso o tarea consume más tiempo manual?</div>
+        <div class="q-hint">Actividades repetitivas que consumen recursos sin agregar valor.</div>
+        <textarea id="a4" placeholder="Ej: Captura de pedidos, conciliaciones contables, seguimiento de cobranza..."></textarea>
+      </div>
+
+      <!-- Pregunta 5 -->
+      <div class="q-block" id="q5">
+        <div class="q-number">PREGUNTA 05 / 16</div>
+        <div class="q-text">¿Dónde se concentran los errores o retrabajos?</div>
+        <div class="q-hint">Etapas donde suelen ocurrir fallas o duplicación de trabajo.</div>
+        <textarea id="a5" placeholder="Ej: En la facturación — frecuentemente hay datos incorrectos..."></textarea>
+      </div>
+
+      <!-- Pregunta 6 -->
+      <div class="q-block" id="q6">
+        <div class="q-number">PREGUNTA 06 / 16</div>
+        <div class="q-text">¿Cómo llegan los clientes y cómo los contactan?</div>
+        <div class="q-hint">Canales de venta, marketing y prospección activos hoy.</div>
+        <textarea id="a6" placeholder="Ej: 70% referidos, 20% Instagram, 10% Google. Primer contacto por WhatsApp..."></textarea>
+      </div>
+
+      <!-- Pregunta 7 -->
+      <div class="q-block" id="q7">
+        <div class="q-number">PREGUNTA 07 / 16</div>
+        <div class="q-text">¿Qué esperan tus clientes que hoy no siempre pueden cumplir?</div>
+        <div class="q-hint">Promesas o expectativas difíciles de mantener consistentemente.</div>
+        <textarea id="a7" placeholder="Ej: Respuesta inmediata fuera de horario, entregas en 24 hrs..."></textarea>
+      </div>
+
+      <!-- Pregunta 8 -->
+      <div class="q-block" id="q8">
+        <div class="q-number">PREGUNTA 08 / 16</div>
+        <div class="q-text">¿Qué sistemas o herramientas utilizan actualmente?</div>
+        <div class="q-hint">CRM, ERP, Excel, WhatsApp, software especializado, apps propias.</div>
+        <textarea id="a8" placeholder="Ej: QuickBooks para contabilidad, Excel para inventario, WhatsApp..."></textarea>
+      </div>
+
+      <!-- Pregunta 9 -->
+      <div class="q-block" id="q9">
+        <div class="q-number">PREGUNTA 09 / 16</div>
+        <div class="q-text">¿Dónde vive la información importante de la empresa?</div>
+        <div class="q-hint">Bases de datos, hojas de cálculo, correos, documentos, sistemas internos.</div>
+        <textarea id="a9" placeholder="Ej: En la cabeza del dueño, en WhatsApp y en un Excel que solo el contador usa..."></textarea>
+      </div>
+
+      <!-- Pregunta 10 -->
+      <div class="q-block" id="q10">
+        <div class="q-number">PREGUNTA 10 / 16</div>
+        <div class="q-text">¿Han intentado alguna automatización o proyecto tecnológico antes?</div>
+        <div class="q-hint">Qué implementaron y cuáles fueron los resultados — exitosos o no.</div>
+        <textarea id="a10" placeholder="Ej: Implementamos un CRM hace dos años pero nadie lo usó..."></textarea>
+      </div>
+
+      <!-- Pregunta 11 -->
+      <div class="q-block" id="q11">
+        <div class="q-number">PREGUNTA 11 / 16</div>
+        <div class="q-text">¿Qué proceso tendría mayor impacto si fuera 10 veces más rápido?</div>
+        <div class="q-hint">El principal cuello de botella que frena el crecimiento.</div>
+        <textarea id="a11" placeholder="Ej: El proceso de cotización — tardamos 3 días y el cliente ya se fue..."></textarea>
+      </div>
+
+      <!-- Pregunta 12 -->
+      <div class="q-block" id="q12">
+        <div class="q-number">PREGUNTA 12 / 16</div>
+        <div class="q-text">¿Qué tareas realiza el personal que podrían automatizarse?</div>
+        <div class="q-hint">Tareas repetitivas, administrativas o de captura de datos.</div>
+        <textarea id="a12" placeholder="Ej: Envío de recordatorios de pago, actualización de inventario..."></textarea>
+      </div>
+
+      <!-- Pregunta 13 -->
+      <div class="q-block" id="q13">
+        <div class="q-number">PREGUNTA 13 / 16</div>
+        <div class="q-text">¿Tienen equipo técnico interno o dependen de externos?</div>
+        <div class="q-hint">Desarrolladores, área de TI, o soporte tecnológico disponible.</div>
+        <textarea id="a13" placeholder="Ej: No tenemos equipo técnico. Contratamos proveedores cuando surge algo..."></textarea>
+      </div>
+
+      <!-- Pregunta 14 -->
+      <div class="q-block" id="q14">
+        <div class="q-number">PREGUNTA 14 / 16</div>
+        <div class="q-text">¿Qué tan abierto está el equipo a adoptar nuevas herramientas?</div>
+        <div class="q-hint">Nivel de resistencia o disposición al cambio en el equipo.</div>
+        <textarea id="a14" placeholder="Ej: Los directivos están emocionados pero el equipo operativo suele resistirse..."></textarea>
+      </div>
+
+      <!-- Pregunta 15 -->
+      <div class="q-block" id="q15">
+        <div class="q-number">PREGUNTA 15 / 16</div>
+        <div class="q-text">¿Cuál es su principal objetivo para los próximos 12 meses?</div>
+        <div class="q-hint">Aumentar ventas, reducir costos, escalar operaciones, mejorar servicio...</div>
+        <textarea id="a15" placeholder="Ej: Duplicar facturación sin contratar más gente, mejorar márgenes..."></textarea>
+      </div>
+
+      <!-- Pregunta 16 -->
+      <div class="q-block" id="q16">
+        <div class="q-number">PREGUNTA 16 / 16</div>
+        <div class="q-text">Si solo pudiéramos resolver un problema este trimestre, ¿cuál sería?</div>
+        <div class="q-hint">Obliga a priorizar: un solo problema, el más importante.</div>
+        <textarea id="a16" placeholder="Ej: Que el dueño deje de ser el cuello de botella en las aprobaciones..."></textarea>
+      </div>
+
+      <!-- ============================================================
+           CAPTURA DE DATOS DEL CLIENTE — NOMBRE, EMAIL, EMPRESA
+           ============================================================ -->
+      <div class="email-section" id="email-section">
+        <div class="q-number" style="margin-bottom:0.75rem">ÚLTIMO PASO — RECIBE TU DIAGNÓSTICO</div>
+        <div class="q-text" style="margin-bottom:0.5rem">¿A dónde enviamos el reporte?</div>
+        <div class="q-hint" style="margin-bottom:1rem">El diagnóstico se genera en pantalla y te enviamos una copia por correo.</div>
+        <label for="client-name">Tu nombre</label>
+        <input type="text" id="client-name" placeholder="Ej: Carlos Mendoza">
+        <label for="client-email">Tu correo electrónico</label>
+        <input type="email" id="client-email" placeholder="correo@empresa.com">
+        <label for="company-name">Nombre de tu empresa</label>
+        <input type="text" id="company-name" placeholder="Ej: Soluciones Logísticas del Norte">
+        <div class="error-msg" id="email-error">Por favor completa nombre, correo y empresa.</div>
+      </div>
+
+      <!-- Botones de navegación -->
+      <div class="nav-row">
+        <button class="btn-back" id="btn-back" onclick="navBack()" style="display:none">
+          <i class="ti ti-arrow-left"></i> Anterior
+        </button>
+        <button class="btn-next" id="btn-next" onclick="navNext()">
+          Siguiente <i class="ti ti-arrow-right"></i>
+        </button>
+      </div>
+
+    </div><!-- /form-body -->
+  </div><!-- /questionnaire -->
+
+  <!-- ============================================================
+       PANTALLA DE CARGA — SE MUESTRA MIENTRAS LA IA TRABAJA
+       ============================================================ -->
+  <div class="loading-screen" id="loading-screen">
+    <div class="spinner"></div>
+    <h2>Analizando tu empresa...</h2>
+    <p>La IA está procesando tus respuestas para generar<br>tu diagnóstico estratégico personalizado.</p>
+    <div class="loading-steps">
+      <div class="loading-step" id="ls1"><i class="ti ti-check"></i> Leyendo tus respuestas</div>
+      <div class="loading-step" id="ls2"><i class="ti ti-check"></i> Detectando oportunidades</div>
+      <div class="loading-step" id="ls3"><i class="ti ti-check"></i> Calculando impacto potencial</div>
+      <div class="loading-step" id="ls4"><i class="ti ti-check"></i> Construyendo el reporte ejecutivo</div>
     </div>
   </div>
 
-  <!-- STEP 3: LOADING -->
-  <div id="loading-step">
-    <div class="loader-ring"></div>
-    <div class="loading-title">Analizando tu negocio...</div>
-    <div class="loading-sub">Estamos generando tu reporte personalizado de oportunidades con IA.</div>
-  </div>
+  <!-- ============================================================
+       REPORTE EJECUTIVO — SE MUESTRA CUANDO LA IA TERMINA
+       ============================================================ -->
+  <div class="report-wrap" id="report-wrap">
 
-  <!-- STEP 4: REPORT -->
-  <div id="report-step">
-    <div class="email-notice">
-      <span>📧</span>
-      <span>Una copia de este reporte fue enviada a <strong>Gabriela Alvarez Guajardo</strong> de Impulsa IA.</span>
-    </div>
     <div class="report-header">
-      <div class="report-badge">✓ Reporte completado</div>
-      <div class="report-title" id="rep-title">Reporte de Discovery IA</div>
-      <div class="report-meta" id="rep-meta">Generado por Impulsa IA · Negocio Inteligente</div>
+      <div class="report-eyebrow">DIAGNÓSTICO ESTRATÉGICO DE IA</div>
+      <div class="report-title" id="report-company-title">—</div>
+      <div class="report-meta">Generado por Impulsa IA · <span id="report-date"></span></div>
     </div>
-    <div class="report-body" id="rep-body"></div>
-    <div class="report-actions">
-      <button class="btn-print" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
-      <button class="btn-new" onclick="resetAll()">Nuevo diagnóstico</button>
+
+    <div class="report-body" id="report-body">
+      <!-- El contenido del diagnóstico se inyecta aquí por JavaScript -->
     </div>
-  </div>
 
-</div>
+    <div class="report-footer">
+      <span>Impulsa IA · Negocio Inteligente</span>
+      <button class="btn-restart" onclick="location.reload()">Nuevo diagnóstico</button>
+    </div>
 
+  </div><!-- /report-wrap -->
+
+</div><!-- /app -->
+
+
+<!-- ============================================================
+     JAVASCRIPT — LÓGICA DEL SISTEMA COMPLETO
+     ============================================================ -->
 <script>
-const shortQs = [
-  { q: "¿A qué se dedica tu empresa?", h: "Describe brevemente qué venden o qué servicio ofrecen y a quién." },
-  { q: "¿Cuántas personas tiene tu equipo?", h: "Número aproximado incluyendo socios y empleados." },
-  { q: "¿Cuál es el mayor reto que enfrenta tu empresa hoy?", h: "El problema que más tiempo, dinero o energía les consume." },
-  { q: "¿Qué proceso o tarea toma más tiempo de manera manual?", h: "Algo repetitivo que hacen seguido y que podría hacerse más rápido." },
-  { q: "¿Qué métrica es la más importante para medir el éxito de tu empresa?", h: "Ventas, clientes nuevos, tiempo de entrega, satisfacción del cliente, etc." },
-  { q: "¿Qué herramientas o sistemas usan hoy para operar?", h: "CRM, ERP, Excel, WhatsApp, sistemas propios, etc." }
-];
 
-const deepQs = [
-  { q: "¿A qué se dedica tu empresa?", h: "Describe qué venden, a quién y en qué mercado operan." },
-  { q: "¿Cuántas personas tiene tu equipo y cómo está organizado?", h: "Número total y áreas principales (ventas, operaciones, tecnología, etc.)." },
-  { q: "¿Cuáles son tus 3 retos más grandes en este momento?", h: "Pueden ser de operación, ventas, tecnología o personas." },
-  { q: "¿Qué proceso consume más tiempo de manera manual?", h: "Algo repetitivo que el equipo hace seguido y que podría automatizarse." },
-  { q: "¿Dónde se concentran los errores o re-trabajos en tu operación?", h: "Etapas donde algo suele salir mal o hay que hacerlo dos veces." },
-  { q: "¿Cómo se enteran tus clientes de ustedes y cómo los contactan?", h: "Canales de venta, prospectos, referencias, redes sociales, etc." },
-  { q: "¿Qué esperan tus clientes que hoy no siempre pueden cumplir?", h: "Promesas o expectativas que a veces se quedan cortas." },
-  { q: "¿Qué sistemas o herramientas usan para operar el negocio?", h: "Software, apps, Excel, WhatsApp, CRM, ERP, sistemas propios." },
-  { q: "¿Dónde vive la información importante de tu empresa?", h: "Base de datos, hojas de cálculo, correos, en la cabeza del equipo." },
-  { q: "¿Han intentado alguna automatización o proyecto de tecnología antes?", h: "Qué probaron, si funcionó y por qué no funcionó." },
-  { q: "¿Qué haría que este año fuera extraordinario para tu empresa?", h: "La meta que, si la logran, cambiaría todo." },
-  { q: "¿Qué proceso, si fuera 10 veces más rápido, cambiaría el negocio?", h: "El cuello de botella que más limita su crecimiento." },
-  { q: "¿Tienen equipo técnico interno o dependen de proveedores externos?", h: "Desarrolladores, IT, sistemas — dentro o fuera de la empresa." },
-  { q: "¿Qué tan abierto está el equipo a adoptar nuevas herramientas?", h: "Resistencia baja, media o alta ante cambios tecnológicos." }
-];
+  // ── ESTADO GLOBAL ────────────────────────────────────────────
+  let currentQ = 1;
+  const TOTAL_Q = 16;
+  const answers = {};
 
-let mode = null, questions = [], answers = [], current = 0;
+  // Preguntas en orden (para armar el prompt a Claude)
+  const QUESTIONS = [
+    '¿A qué se dedica tu empresa?',
+    '¿Cuántas personas tiene tu equipo?',
+    '¿Cuál es el mayor reto que enfrenta tu empresa hoy?',
+    '¿Qué proceso o tarea consume más tiempo manual?',
+    '¿Dónde se concentran los errores o retrabajos?',
+    '¿Cómo llegan los clientes y cómo los contactan?',
+    '¿Qué esperan tus clientes que hoy no siempre pueden cumplir?',
+    '¿Qué sistemas o herramientas utilizan actualmente?',
+    '¿Dónde vive la información importante de la empresa?',
+    '¿Han intentado alguna automatización o proyecto tecnológico antes?',
+    '¿Qué proceso tendría mayor impacto si fuera 10 veces más rápido?',
+    '¿Qué tareas realiza el personal que podrían automatizarse?',
+    '¿Tienen equipo técnico interno o dependen de externos?',
+    '¿Qué tan abierto está el equipo a adoptar nuevas herramientas?',
+    '¿Cuál es su principal objetivo para los próximos 12 meses?',
+    'Si solo pudiéramos resolver un problema este trimestre, ¿cuál sería?'
+  ];
 
-function selectMode(m) {
-  mode = m;
-  document.getElementById('card-short').classList.toggle('selected', m === 'short');
-  document.getElementById('card-deep').classList.toggle('selected', m === 'deep');
-  document.getElementById('btn-start').classList.add('visible');
-}
-
-function startForm() {
-  if (!mode) return;
-  questions = mode === 'short' ? shortQs : deepQs;
-  answers = new Array(questions.length).fill('');
-  current = 0;
-  document.getElementById('mode-step').style.display = 'none';
-  document.getElementById('form-step').style.display = 'block';
-  renderQ();
-}
-
-function renderQ() {
-  const total = questions.length;
-  const q = questions[current];
-  const pct = Math.round(((current + 1) / total) * 100);
-  document.getElementById('prog-label').textContent = 'Pregunta ' + (current + 1) + ' de ' + total;
-  document.getElementById('prog-pct').textContent = pct + '%';
-  document.getElementById('prog-fill').style.width = pct + '%';
-  document.getElementById('step-dot').textContent = (current + 1) + ' / ' + total;
-  document.getElementById('q-number').textContent = 'Pregunta ' + String(current + 1).padStart(2, '0');
-  document.getElementById('q-text').textContent = q.q;
-  document.getElementById('q-hint').textContent = q.h;
-  document.getElementById('answer-box').value = answers[current] || '';
-  document.getElementById('btn-back').disabled = current === 0;
-  document.getElementById('btn-next').textContent = current === total - 1 ? 'Enviar y ver reporte →' : 'Siguiente →';
-  document.getElementById('error-msg').style.display = 'none';
-  document.getElementById('answer-box').focus();
-}
-
-function goBack() {
-  answers[current] = document.getElementById('answer-box').value;
-  if (current > 0) { current--; renderQ(); }
-}
-
-function goNext() {
-  const val = document.getElementById('answer-box').value.trim();
-  if (!val) { document.getElementById('error-msg').style.display = 'block'; return; }
-  answers[current] = val;
-  if (current < questions.length - 1) { current++; renderQ(); }
-  else { submitForm(); }
-}
-
-function submitForm() {
-  document.getElementById('form-step').style.display = 'none';
-  document.getElementById('loading-step').style.display = 'block';
-  generateReport();
-}
-
-async function generateReport() {
-  let prompt = `Eres el AI Discovery Agent de Impulsa IA. Un cliente potencial completó el siguiente formulario de Discovery. Genera un reporte profesional en español con estas secciones:
-
-1. RESUMEN EJECUTIVO (2-3 párrafos sobre quiénes son y su situación)
-2. DOLORES PRINCIPALES IDENTIFICADOS (lista los 2-4 dolores más importantes con impacto)
-3. OPORTUNIDADES CON IA (2-3 oportunidades concretas y realistas, con tiempo estimado para ver valor)
-4. PRÓXIMOS PASOS RECOMENDADOS (3 acciones específicas)
-
-Sé concreto, directo y usa los datos que dio el cliente. No inventes información. Usa formato con encabezados claros en MAYÚSCULAS. Si algo no está claro, indícalo como "Dato por confirmar".
-
-RESPUESTAS DEL CLIENTE:
-`;
-  questions.forEach((q, i) => {
-    prompt += `\n${i+1}. ${q.q}\nRespuesta: ${answers[i] || '(no respondida)'}\n`;
-  });
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1500,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    const text = data.content && data.content[0] ? data.content[0].text : null;
-    if (text) showReport(text);
-    else showReport(buildFallbackReport());
-  } catch(e) {
-    showReport(buildFallbackReport());
+  // ── BARRA DE PROGRESO ────────────────────────────────────────
+  function updateProgress() {
+    const pct = Math.round(((currentQ - 1) / (TOTAL_Q + 1)) * 100);
+    document.getElementById('progress-fill').style.width = pct + '%';
+    document.getElementById('progress-pct').textContent = pct + '%';
+    document.getElementById('progress-text').textContent =
+      currentQ <= TOTAL_Q ? 'Pregunta ' + currentQ + ' de ' + TOTAL_Q : 'Último paso';
   }
-}
 
-function buildFallbackReport() {
-  let r = 'RESUMEN EJECUTIVO\n\n';
-  r += 'Con base en las respuestas proporcionadas, hemos identificado las áreas de mayor oportunidad para integrar inteligencia artificial en tu negocio. A continuación encontrarás un diagnóstico inicial.\n\n';
-  r += 'INFORMACIÓN CAPTURADA\n\n';
-  questions.forEach((q, i) => {
-    if (answers[i]) r += `${q.q}\n${answers[i]}\n\n`;
-  });
-  r += 'PRÓXIMOS PASOS\n\n1. Agendar sesión de Discovery detallada con Gabriela Alvarez Guajardo\n2. Revisar este reporte y preparar preguntas\n3. Definir iniciativa piloto de mayor impacto';
-  return r;
-}
+  // ── NAVEGACIÓN — AVANZAR ─────────────────────────────────────
+  function navNext() {
+    if (currentQ <= TOTAL_Q) {
+      // Guardar respuesta actual
+      const textarea = document.getElementById('a' + currentQ);
+      answers['q' + currentQ] = textarea ? textarea.value.trim() : '';
 
-function showReport(text) {
-  document.getElementById('loading-step').style.display = 'none';
-  document.getElementById('report-step').style.display = 'block';
+      // Ocultar pregunta actual
+      document.getElementById('q' + currentQ).classList.remove('active');
+      currentQ++;
 
-  const date = new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
-  document.getElementById('rep-meta').textContent = 'Generado por Impulsa IA · ' + date;
+      if (currentQ <= TOTAL_Q) {
+        // Mostrar siguiente pregunta
+        document.getElementById('q' + currentQ).classList.add('active');
+        document.getElementById('btn-back').style.display = 'flex';
+      } else {
+        // Mostrar sección de captura de datos
+        document.getElementById('email-section').classList.add('active');
+        document.getElementById('btn-next').innerHTML =
+          'Generar diagnóstico <i class="ti ti-sparkles"></i>';
+        document.getElementById('btn-back').style.display = 'flex';
+      }
+      updateProgress();
 
-  const company = answers[0] ? answers[0].split(' ').slice(0, 4).join(' ') + '...' : 'Tu empresa';
-  document.getElementById('rep-title').textContent = 'Reporte de Discovery — ' + company;
-
-  const html = formatReport(text);
-  document.getElementById('rep-body').innerHTML = html;
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
-
-function formatReport(text) {
-  const lines = text.split('\n');
-  let html = '';
-  let inList = false;
-  for (let line of lines) {
-    line = line.trim();
-    if (!line) { if (inList) { html += '</ul>'; inList = false; } continue; }
-    if (line.match(/^[A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ\s]+$/) && line.length > 3) {
-      if (inList) { html += '</ul>'; inList = false; }
-      html += '<h2>' + line + '</h2>';
-    } else if (line.startsWith('- ') || line.startsWith('• ') || line.match(/^\d+\.\s/)) {
-      if (!inList) { html += '<ul>'; inList = true; }
-      const content = line.replace(/^[-•]\s/, '').replace(/^\d+\.\s/, '');
-      html += '<li>' + content + '</li>';
     } else {
-      if (inList) { html += '</ul>'; inList = false; }
-      html += '<p>' + line + '</p>';
+      // Ya completamos todas las preguntas → enviar
+      submitForm();
     }
   }
-  if (inList) html += '</ul>';
-  return html;
+
+  // ── NAVEGACIÓN — RETROCEDER ──────────────────────────────────
+  function navBack() {
+    if (currentQ > 1) {
+      if (currentQ <= TOTAL_Q) {
+        document.getElementById('q' + currentQ).classList.remove('active');
+      } else {
+        document.getElementById('email-section').classList.remove('active');
+        document.getElementById('btn-next').innerHTML =
+          'Siguiente <i class="ti ti-arrow-right"></i>';
+      }
+      currentQ--;
+      document.getElementById('q' + currentQ).classList.add('active');
+      if (currentQ === 1) document.getElementById('btn-back').style.display = 'none';
+      updateProgress();
+    }
+  }
+
+  // ── ENVÍO DEL FORMULARIO ─────────────────────────────────────
+  async function submitForm() {
+    const name    = document.getElementById('client-name').value.trim();
+    const email   = document.getElementById('client-email').value.trim();
+    const company = document.getElementById('company-name').value.trim();
+
+    // Validación básica
+    if (!name || !email || !company) {
+      document.getElementById('email-error').style.display = 'block';
+      return;
+    }
+    document.getElementById('email-error').style.display = 'none';
+
+    // Mostrar pantalla de carga
+    document.getElementById('questionnaire').style.display = 'none';
+    document.getElementById('loading-screen').classList.add('active');
+
+    // Animar pasos de carga
+    const steps = ['ls1', 'ls2', 'ls3', 'ls4'];
+    for (const step of steps) {
+      await new Promise(r => setTimeout(r, 900));
+      document.getElementById(step).classList.add('done');
+    }
+
+    // Llamar a la API de Claude
+    await callClaudeAPI(name, email, company);
+  }
+
+  // ── LLAMADA A LA API DE CLAUDE ───────────────────────────────
+  // NOTA: En producción, esta llamada debe ir a través de un
+  // backend (Netlify Functions, Vercel, etc.) para proteger la API key.
+  // La API key NO debe estar expuesta en el HTML del cliente.
+  //
+  // Para activar: reemplaza la constante ANTHROPIC_API_KEY con
+  // una llamada a tu backend. Ejemplo:
+  //   const response = await fetch('/api/generar-diagnostico', { ... })
+  //
+  async function callClaudeAPI(name, email, company) {
+    // ── CONSTRUIR EL TEXTO DE RESPUESTAS ──────────────────────
+    const answersText = Object.entries(answers)
+      .map(([, v], i) => `P${i + 1}: ${QUESTIONS[i]}\nR: ${v || '(no respondió)'}`)
+      .join('\n\n');
+
+    // ── SYSTEM PROMPT PARA CLAUDE ─────────────────────────────
+    const systemPrompt = `Eres un consultor estratégico senior de transformación digital e inteligencia artificial con 20 años de experiencia. Tu empresa se llama Impulsa IA.
+
+Recibirás las respuestas de un cuestionario de diagnóstico empresarial. Tu tarea es generar un diagnóstico estratégico ejecutivo en formato JSON estricto.
+
+IMPORTANTE: Responde ÚNICAMENTE con JSON válido. Sin texto adicional, sin backticks, sin markdown.
+
+El JSON debe tener esta estructura exacta:
+{
+  "resumen_ejecutivo": "Párrafo de 3-4 oraciones evaluando el negocio con profundidad estratégica",
+  "lo_que_escuchamos": ["observación 1", "observación 2", "observación 3"],
+  "nivel_madurez": {
+    "nivel": "Inicial|Intermedio|Avanzado",
+    "justificacion": "2 oraciones explicando por qué"
+  },
+  "oportunidades": [
+    {
+      "titulo": "Nombre de la oportunidad",
+      "icono": "robot|chart-bar|message-dots|send|users|clock|trending-up",
+      "problema": "El problema detectado en 1 oración",
+      "solucion": "Qué se recomienda implementar",
+      "impacto": "Beneficio esperado cuantificado o cualificado",
+      "tags": ["tag1", "tag2"]
+    }
+  ],
+  "proyecto_piloto": {
+    "nombre": "Nombre del proyecto piloto",
+    "descripcion": "2-3 oraciones: qué es, por qué se recomienda, qué impacto tendrá"
+  },
+  "impacto_potencial": [
+    "beneficio 1 con estimado conservador",
+    "beneficio 2 con estimado conservador",
+    "beneficio 3 con estimado conservador"
+  ],
+  "plan_accion": {
+    "30": ["acción concreta 1", "acción concreta 2", "acción concreta 3"],
+    "60": ["acción concreta 1", "acción concreta 2"],
+    "90": ["acción concreta 1", "acción concreta 2"]
+  }
 }
 
-function resetAll() {
-  mode = null; answers = []; current = 0;
-  document.getElementById('report-step').style.display = 'none';
-  document.getElementById('card-short').classList.remove('selected');
-  document.getElementById('card-deep').classList.remove('selected');
-  document.getElementById('btn-start').classList.remove('visible');
-  document.getElementById('mode-step').style.display = 'block';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-}
+Reglas:
+- Genera entre 3 y 5 oportunidades
+- Sé específico y ejecutivo, sin exageraciones
+- Usa rangos conservadores para estimados
+- Tono profesional de consultora premium
+- No inventes cifras. Si no hay datos suficientes, usa rangos cualitativos`;
 
-document.getElementById('answer-box').addEventListener('keydown', function(e) {
-  if (e.key === 'Enter' && e.ctrlKey) goNext();
-});
+    // ── REQUEST A LA API ──────────────────────────────────────
+    try {
+      const response = await fetch('/.netlify/functions/claude', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          system: systemPrompt,
+          messages: [{
+            role: 'user',
+            content: `Empresa: ${company}\nContacto: ${name}\nEmail: ${email}\n\nRespuestas del diagnóstico:\n\n${answersText}`
+          }]
+        })
+      });
+
+      const data = await response.json();
+      const rawText = (data.content || []).map(b => b.text || '').join('');
+      const clean = rawText.replace(/```json|```/g, '').trim();
+      const report = JSON.parse(clean);
+
+      renderReport(report, name, company);
+
+    } catch (err) {
+      console.error('Error al llamar a Claude:', err);
+      renderFallback(name, company);
+    }
+  }
+
+  // ── RENDER DEL DIAGNÓSTICO ───────────────────────────────────
+  // Esta función toma el JSON de Claude y construye el HTML del reporte
+  function renderReport(r, name, company) {
+    document.getElementById('loading-screen').classList.remove('active');
+    document.getElementById('report-wrap').classList.add('active');
+
+    // Título y fecha
+    document.getElementById('report-company-title').textContent = company;
+    document.getElementById('report-date').textContent =
+      new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    // Mapa de íconos Tabler permitidos
+    const iconMap = {
+      'robot':        'ti-robot',
+      'chart-bar':    'ti-chart-bar',
+      'message-dots': 'ti-message-dots',
+      'send':         'ti-send',
+      'users':        'ti-users',
+      'clock':        'ti-clock',
+      'trending-up':  'ti-trending-up'
+    };
+
+    // Badge de madurez
+    const maturityClass = {
+      'Inicial':     'maturity-inicial',
+      'Intermedio':  'maturity-intermedio',
+      'Avanzado':    'maturity-avanzado'
+    }[r.nivel_madurez?.nivel] || 'maturity-intermedio';
+
+    // HTML de tarjetas de oportunidades
+    const oppsHtml = (r.oportunidades || []).map(o => {
+      const iconClass = iconMap[o.icono] || 'ti-sparkles';
+      const tagsHtml = (o.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+      return `<div class="opp-card">
+        <div class="opp-icon"><i class="ti ${iconClass}"></i></div>
+        <div>
+          <div class="opp-title">${o.titulo}</div>
+          <div class="opp-desc"><strong style="font-weight:500">Problema:</strong> ${o.problema}</div>
+          <div class="opp-desc"><strong style="font-weight:500">Solución:</strong> ${o.solucion}</div>
+          <div class="opp-desc" style="color:var(--gold-dark)"><strong style="font-weight:500">Impacto:</strong> ${o.impacto}</div>
+        </div>
+        <div class="opp-tags">${tagsHtml}<span class="tag tag-impact">Alto impacto</span></div>
+      </div>`;
+    }).join('');
+
+    // HTML de impacto potencial
+    const impactoHtml = (r.impacto_potencial || []).map(b =>
+      `<li style="padding:4px 0;font-size:13px;color:var(--ink-mid);border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:6px;list-style:none">
+        <span style="color:var(--gold);font-weight:700;flex-shrink:0">·</span><span>${b}</span>
+      </li>`
+    ).join('');
+
+    // HTML de lo que escuchamos
+    const escHtml = (r.lo_que_escuchamos || []).map(x =>
+      `<li style="padding:4px 0;font-size:13px;color:var(--ink-mid);border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:6px;list-style:none">
+        <span style="color:var(--gold);font-weight:700;flex-shrink:0">·</span><span>${x}</span>
+      </li>`
+    ).join('');
+
+    // Helper para columnas del plan de acción
+    const planCol = (days, items) => `<div class="timeline-col">
+      <div class="t-label">Primeros ${days} días</div>
+      <ul>${(items || []).map(i => `<li>${i}</li>`).join('')}</ul>
+    </div>`;
+
+    const plan = r.plan_accion || { '30': [], '60': [], '90': [] };
+
+    // Inyectar todo en el DOM
+    document.getElementById('report-body').innerHTML = `
+
+      <div class="report-section">
+        <div class="section-label">Resumen ejecutivo</div>
+        <div class="exec-summary-box">${r.resumen_ejecutivo}</div>
+      </div>
+
+      <div class="report-section">
+        <div class="section-label">Lo que escuchamos</div>
+        <ul style="padding:0">${escHtml}</ul>
+      </div>
+
+      <div class="report-section">
+        <div class="section-label">Nivel de madurez digital</div>
+        <span class="maturity-badge ${maturityClass}">${r.nivel_madurez?.nivel}</span>
+        <p style="font-size:13px;color:var(--ink-muted);line-height:1.6">${r.nivel_madurez?.justificacion}</p>
+      </div>
+
+      <div class="report-section">
+        <div class="section-label">Principales oportunidades</div>
+        <div class="opp-cards">${oppsHtml}</div>
+      </div>
+
+      <div class="report-section">
+        <div class="section-label">Proyecto piloto recomendado</div>
+        <div class="pilot-box">
+          <div class="pilot-title">${r.proyecto_piloto?.nombre}</div>
+          <div class="pilot-desc">${r.proyecto_piloto?.descripcion}</div>
+        </div>
+      </div>
+
+      <div class="report-section">
+        <div class="section-label">Impacto potencial</div>
+        <ul style="padding:0">${impactoHtml}</ul>
+      </div>
+
+      <div class="report-section">
+        <div class="section-label">Plan de acción</div>
+        <div class="timeline">
+          ${planCol(30, plan['30'])}
+          ${planCol(60, plan['60'])}
+          ${planCol(90, plan['90'])}
+        </div>
+      </div>
+
+      <div class="report-section">
+        <div class="section-label">Próximos pasos</div>
+        <div class="cta-box">
+          <p>Tu diagnóstico está listo. El siguiente paso es una sesión estratégica de 45 minutos con Impulsa IA para priorizar e iniciar el proyecto piloto recomendado.</p>
+          <a class="btn-cta"
+             href="mailto:gaguajardo30@gmail.com?subject=Sesión estratégica — ${encodeURIComponent(company)}&body=Hola Gabriela,%0D%0A%0D%0ACompletamos el diagnóstico de IA para ${encodeURIComponent(company)} y nos gustaría agendar una sesión estratégica.%0D%0A%0D%0ASaludos,%0D%0A${encodeURIComponent(name)}">
+            <i class="ti ti-calendar"></i> Agendar sesión estratégica
+          </a>
+        </div>
+      </div>
+    `;
+  }
+
+  // ── FALLBACK — SI LA IA FALLA ────────────────────────────────
+  // Se muestra si la API de Claude no responde o hay un error de parseo
+  function renderFallback(name, company) {
+    document.getElementById('loading-screen').classList.remove('active');
+    document.getElementById('report-wrap').classList.add('active');
+    document.getElementById('report-company-title').textContent = company;
+    document.getElementById('report-date').textContent =
+      new Date().toLocaleDateString('es-MX', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    document.getElementById('report-body').innerHTML = `
+      <div class="report-section">
+        <div class="section-label">Diagnóstico recibido</div>
+        <div class="exec-summary-box">
+          Tus respuestas fueron recibidas correctamente. Un consultor de Impulsa IA
+          revisará tu diagnóstico personalmente y te contactará en menos de 24 horas
+          con tus oportunidades de mejora y recomendaciones.
+        </div>
+      </div>
+      <div class="report-section">
+        <div class="section-label">Próximos pasos</div>
+        <div class="cta-box">
+          <p>Para agendar tu sesión estratégica ahora, escríbenos directamente.</p>
+          <a class="btn-cta"
+             href="mailto:gaguajardo30@gmail.com?subject=Diagnóstico IA — ${encodeURIComponent(company)}&body=Hola Gabriela,%0D%0A%0D%0ACompletamos el formulario de diagnóstico para ${encodeURIComponent(company)}.%0D%0A%0D%0ASaludos,%0D%0A${encodeURIComponent(name)}">
+            <i class="ti ti-mail"></i> Contactar a Impulsa IA
+          </a>
+        </div>
+      </div>`;
+  }
+
+  // ── INICIALIZACIÓN ───────────────────────────────────────────
+  updateProgress();
+
 </script>
 </body>
 </html>
