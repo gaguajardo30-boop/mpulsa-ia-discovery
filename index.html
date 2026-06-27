@@ -1010,11 +1010,131 @@ Reglas:
       'Avanzado':    'maturity-avanzado'
     }[r.nivel_madurez?.nivel] || 'maturity-intermedio';
 
-    // HTML de tarjetas de oportunidades
-    const oppsHtml = (r.oportunidades || []).map(o => {
-      const iconClass = iconMap[o.icono] || 'ti-sparkles';
-      const tagsHtml = (o.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
-      return `<div class="opp-card">
+   // Compatibilidad: soporta nombre anterior y nuevo
+        const iniciativas = r.iniciativas_estrategicas ?? r.oportunidades ?? [];
+
+        // HTML de tarjetas de iniciativas
+        const oppsHtml = iniciativas.map(o => {
+          const iconClass = iconMap[o.icono] || 'ti-sparkles';
+          const tagsHtml = (o.tags || []).map(t => `<span class="tag">${t}</span>`).join('');
+          const prioridadHtml = o.prioridad
+            ? `<span class="tag tag-impact">${o.prioridad} prioridad</span>`
+            : `<span class="tag tag-impact">Alta prioridad</span>`;
+          return `<div class="opp-card">
+            <div class="opp-icon"><i class="ti ${iconClass}"></i></div>
+            <div>
+              <div class="opp-title">${o.titulo || ''}</div>
+              <div class="opp-desc"><strong style="font-weight:500">Problema:</strong> ${o.problema || ''}</div>
+              <div class="opp-desc"><strong style="font-weight:500">Solución:</strong> ${o.solucion || ''}</div>
+              <div class="opp-desc" style="color:var(--gold-dark)"><strong style="font-weight:500">Impacto:</strong> ${o.impacto || ''}</div>
+              ${o.por_que_prioritaria ? `<div class="opp-desc" style="color:var(--ink-muted);font-style:italic">${o.por_que_prioritaria}</div>` : ''}
+            </div>
+            <div class="opp-tags">${tagsHtml}${prioridadHtml}</div>
+          </div>`;
+        }).join('');
+
+        // HTML de impacto potencial
+        const impactoHtml = (r.impacto_potencial || []).map(b =>
+          `<li style="padding:4px 0;font-size:13px;color:var(--ink-mid);border-bottom:1px solid var(--border)">
+            <span style="color:var(--gold);font-weight:700;flex-shrink:0">·</span><span>${b}</span>
+          </li>`
+        ).join('');
+
+        // HTML de lo que escuchamos
+        const escHtml = (r.lo_que_escuchamos || []).map(x =>
+          `<li style="padding:4px 0;font-size:13px;color:var(--ink-mid);border-bottom:1px solid var(--border)">
+            <span style="color:var(--gold);font-weight:700;flex-shrink:0">·</span><span>${x}</span>
+          </li>`
+        ).join('');
+
+        // HTML de riesgos de no actuar
+        const riesgosHtml = (r.riesgos_de_no_actuar || []).map(x =>
+          `<li style="padding:4px 0;font-size:13px;color:var(--ink-mid);border-bottom:1px solid var(--border)">
+            <span style="color:var(--gold);font-weight:700;flex-shrink:0">·</span><span>${x}</span>
+          </li>`
+        ).join('');
+
+        // Proyecto piloto — soporta por_que_empezar_aqui
+        const piloto = r.proyecto_piloto || {};
+        const pilotoNombre = piloto.nombre || '';
+        const pilotoDesc = piloto.descripcion || '';
+        const pilotoPorQue = piloto.por_que_empezar_aqui || '';
+
+        const planCol = (days, items) => `
+          <div class="t-col">
+            <div class="t-label">Primeros ${days} días</div>
+            <ul>${(items || []).map(i => `<li>${i}</li>`).join('')}</ul>
+          </div>`;
+
+        const plan = r.plan_accion || { '30': [], '60': [], '90': [] };
+
+        // Inyectar todo en el DOM
+        document.getElementById('report-body').innerHTML = `
+
+          <div class="report-section">
+            <div class="section-label">Resumen ejecutivo</div>
+            <div class="exec-summary-box">${r.resumen_ejecutivo || ''}</div>
+          </div>
+
+          <div class="report-section">
+            <div class="section-label">Lo que escuchamos</div>
+            <ul style="padding:0">${escHtml}</ul>
+          </div>
+
+          <div class="report-section">
+            <div class="section-label">Nivel de madurez digital</div>
+            <span class="maturity-badge ${maturityClass}">${r.nivel_madurez?.nivel || ''}</span>
+            <p style="font-size:13px;color:var(--ink-muted);line-height:1.6">${r.nivel_madurez?.justificacion || ''}</p>
+          </div>
+
+          <div class="report-section">
+            <div class="section-label">Iniciativas estratégicas</div>
+            <div class="opp-cards">${oppsHtml}</div>
+          </div>
+
+          <div class="report-section">
+            <div class="section-label">Proyecto piloto recomendado</div>
+            <div class="pilot-box">
+              <div class="pilot-name">${pilotoNombre}</div>
+              <div class="pilot-desc">${pilotoDesc}</div>
+              ${pilotoPorQue ? `
+              <div style="margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.15)">
+                <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:var(--gold);margin-bottom:6px">¿POR QUÉ EMPEZAR AQUÍ?</div>
+                <div style="font-size:13px;color:rgba(255,255,255,0.85);line-height:1.6">${pilotoPorQue}</div>
+              </div>` : ''}
+            </div>
+          </div>
+
+          <div class="report-section">
+            <div class="section-label">Riesgos de no actuar</div>
+            <ul style="padding:0">${riesgosHtml}</ul>
+          </div>
+
+          <div class="report-section">
+            <div class="section-label">Impacto potencial</div>
+            <ul style="padding:0">${impactoHtml}</ul>
+          </div>
+
+          <div class="report-section">
+            <div class="section-label">Plan de acción</div>
+            <div class="timeline">
+              ${planCol(30, plan['30'])}
+              ${planCol(60, plan['60'])}
+              ${planCol(90, plan['90'])}
+            </div>
+          </div>
+
+          <div class="report-section">
+            <div class="section-label">Próximos pasos</div>
+            <div class="cta-box">
+              <p>Tu diagnóstico está listo. El siguiente paso es una sesión estratégica de 45 minutos con Impulsa IA para priorizar e iniciar el proyecto piloto recomendado.</p>
+              <a class="btn-cta"
+                href="mailto:gaguajardo30@gmail.com?subject=Sesión estratégica — ${encodeURIComponent(company)}"
+                <i class="ti ti-calendar"></i> Agendar sesión estratégica
+              </a>
+            </div>
+          </div>
+        `;
         <div class="opp-icon"><i class="ti ${iconClass}"></i></div>
         <div>
           <div class="opp-title">${o.titulo}</div>
