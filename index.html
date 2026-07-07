@@ -974,8 +974,18 @@ Reglas:
       const clean = rawText.replace(/```json|```/g, '').trim();
       const report = JSON.parse(clean);
 
-      renderReport(report, name, company);
-
+      if (!report.proyecto_piloto?.por_que_empezar_aqui) {
+              report.proyecto_piloto = report.proyecto_piloto || {};
+              report.proyecto_piloto.por_que_empezar_aqui = 'Este proyecto fue seleccionado por su menor riesgo de implementación, resultados visibles a corto plazo y porque resuelve directamente el cuello de botella más crítico del negocio.';
+            }
+            if (!report.riesgos_de_no_actuar?.length) {
+              report.riesgos_de_no_actuar = [
+                'El crecimiento seguirá limitado por la capacidad manual de una sola persona',
+                'Las oportunidades de venta continuarán perdiéndose por falta de seguimiento sistemático',
+                'La brecha con competidores que ya usan IA seguirá ampliándose'
+              ];
+            }
+            renderReport(report, name, company);
     } catch (err) {
       console.error('Error al llamar a Claude:', err);
       renderFallback(name, company);
