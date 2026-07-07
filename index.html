@@ -917,40 +917,37 @@ FILOSOFÍA:
 IMPORTANTE: Responde ÚNICAMENTE con JSON válido. Sin texto adicional, sin backticks, sin markdown.
 
 {
-  "resumen_ejecutivo": "3-4 oraciones: cuello de botella principal, oportunidad estratégica más importante, riesgo de no actuar, beneficio esperado si ejecuta bien.",
-  "lo_que_escuchamos": ["causa raíz observada 1", "causa raíz observada 2", "causa raíz observada 3"],
+  "resumen_ejecutivo": "3-4 oraciones: cuello de botella principal, oportunidad estratégica, riesgo de no actuar, beneficio esperado",
+  "lo_que_escuchamos": ["causa raíz 1", "causa raíz 2", "causa raíz 3"],
   "nivel_madurez": {
     "nivel": "Inicial|Intermedio|Avanzado",
     "justificacion": "2 oraciones basadas en las respuestas del cliente"
   },
   "iniciativas_estrategicas": [
     {
-      "titulo": "Nombre de la iniciativa",
+      "titulo": "Nombre",
       "icono": "robot|chart-bar|message-dots|send|users|clock|trending-up",
-      "problema": "Causa raíz detectada en 1 oración",
+      "problema": "Causa raíz en 1 oración",
       "solucion": "Qué se recomienda y cómo resuelve el problema",
-      "impacto": "Beneficio en términos de negocio: tiempo, escala, decisiones, experiencia del cliente. Sin porcentajes inventados.",
-      "por_que_prioritaria": "Por qué esta iniciativa tiene mayor impacto o menor riesgo que otras",
+      "impacto": "Beneficio en términos de negocio, sin porcentajes",
+      "por_que_prioritaria": "Por qué tiene mayor impacto o menor riesgo",
       "prioridad": "Alta|Media",
       "tags": ["tag1", "tag2"]
     }
   ],
- "proyecto_piloto": {
+  "proyecto_piloto": {
     "nombre": "Nombre del proyecto piloto",
-    "descripcion": "Qué es y qué problema resuelve directamente",
-    "por_que_empezar_aqui": "CAMPO OBLIGATORIO: explica por qué este proyecto es el mejor punto de inicio considerando: menor riesgo, resultados rápidos, resuelve cuello de botella crítico, habilita futuras automatizaciones"
+    "descripcion": "Qué es y qué problema resuelve",
+    "por_que_empezar_aqui": "Por qué es el mejor primer proyecto"
   },
-  "riesgos_de_no_actuar": ["CAMPO OBLIGATORIO: riesgo específico 1 derivado del diagnóstico", "riesgo específico 2", "riesgo específico 3"],
-  "riesgos_de_no_actuar": ["CAMPO OBLIGATORIO: riesgo específico 1 derivado del diagnóstico", "riesgo específico 2", "riesgo específico 3"],
-  "impacto_potencial": ["beneficio de negocio 1", "beneficio de negocio 2", "beneficio de negocio 3"],
-  "riesgos_de_no_actuar": ["riesgo específico derivado del diagnóstico 1", "riesgo específico derivado del diagnóstico 2", "riesgo específico derivado del diagnóstico 3"],
+  "riesgos_de_no_actuar": ["riesgo 1", "riesgo 2", "riesgo 3"],
+  "impacto_potencial": ["beneficio 1", "beneficio 2", "beneficio 3"],
   "plan_accion": {
-    "30": ["entender procesos clave", "definir alcance del piloto"],
-    "60": ["implementar piloto", "capacitar al equipo"],
-    "90": ["medir resultados", "definir siguiente fase"]
+    "30": ["acción 1", "acción 2"],
+    "60": ["acción 1", "acción 2"],
+    "90": ["acción 1", "acción 2"]
   }
 }
-
 Reglas:
 - Genera entre 2 y 3 iniciativas estratégicas
 - Nunca uses porcentajes ni cifras si el cliente no las dio. Describe impacto en términos cualitativos
