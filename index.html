@@ -1137,28 +1137,7 @@ Reglas:
         `;
        
 
-    // HTML de impacto potencial
-    const impactoHtml = (r.impacto_potencial || []).map(b =>
-      `<li style="padding:4px 0;font-size:13px;color:var(--ink-mid);border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:6px;list-style:none">
-        <span style="color:var(--gold);font-weight:700;flex-shrink:0">·</span><span>${b}</span>
-      </li>`
-    ).join('');
-
-    // HTML de lo que escuchamos
-    const escHtml = (r.lo_que_escuchamos || []).map(x =>
-      `<li style="padding:4px 0;font-size:13px;color:var(--ink-mid);border-bottom:1px solid var(--border);display:flex;align-items:flex-start;gap:6px;list-style:none">
-        <span style="color:var(--gold);font-weight:700;flex-shrink:0">·</span><span>${x}</span>
-      </li>`
-    ).join('');
-
-    // Helper para columnas del plan de acción
-    const planCol = (days, items) => `<div class="timeline-col">
-      <div class="t-label">Primeros ${days} días</div>
-      <ul>${(items || []).map(i => `<li>${i}</li>`).join('')}</ul>
-    </div>`;
-
-    const plan = r.plan_accion || { '30': [], '60': [], '90': [] };
-
+   
     // Inyectar todo en el DOM
     document.getElementById('report-body').innerHTML = `
 
