@@ -1135,16 +1135,7 @@ Reglas:
             </div>
           </div>
         `;
-        <div class="opp-icon"><i class="ti ${iconClass}"></i></div>
-        <div>
-          <div class="opp-title">${o.titulo}</div>
-          <div class="opp-desc"><strong style="font-weight:500">Problema:</strong> ${o.problema}</div>
-          <div class="opp-desc"><strong style="font-weight:500">Solución:</strong> ${o.solucion}</div>
-          <div class="opp-desc" style="color:var(--gold-dark)"><strong style="font-weight:500">Impacto:</strong> ${o.impacto}</div>
-        </div>
-        <div class="opp-tags">${tagsHtml}<span class="tag tag-impact">Alto impacto</span></div>
-      </div>`;
-    }).join('');
+       
 
     // HTML de impacto potencial
     const impactoHtml = (r.impacto_potencial || []).map(b =>
